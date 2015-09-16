@@ -12,7 +12,7 @@ module.exports = function (robot) {
     var roomName = res.message.room;
     var user = res.message.user;
 
-    removeUser(roomName, user);
+    removeUser(roomName, user.id);
   });
 
   robot.respond(/crear lista #(.+)/i, function (res) {
@@ -27,14 +27,19 @@ module.exports = function (robot) {
   });
 
   robot.hear(/@(.+) juega$/, function (res) {
-    var userId = /\<@(.+)\> juega$/.exec(res.message.rawText)[1];
+    var match = /\<@(.+)\> juega$/.exec(res.message.rawText);
 
-    addUser(res.message.room, { id: userId });
+    if (match) {
+      var userId = match[1];
+
+      addUser(res.message.room, { id: userId });
+    }
   });
 
   robot.hear(/@(.+) no juega$/, function (res) {
     var userId = /\<@(.+)\> no juega$/.exec(res.message.rawText)[1];
     var user = res.message.user;
+    var admins = process.env.ADMIN_NAME.split(';');
 
     if (admins.some(function (a) { return a === user.name; })) {
       removeUser(res.message.room, userId);
