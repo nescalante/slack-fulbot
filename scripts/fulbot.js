@@ -31,12 +31,14 @@ module.exports = function (robot) {
   });
 
   robot.hear(/@(.+) no juega$/, function (res) {
-    var userId = /\<@(.+)\> no juega$/.exec(res.message.rawText)[1];
+    var match = /\<@(.+)\> no juega$/.exec(res.message.rawText);
     var user = res.message.user;
     var admins = process.env.ADMIN_NAME.split(';');
     var roomName = res.message.room;
 
-    if (admins.some(function (a) { return a === user.name; }) && isValidRoom(roomName)) {
+    if (match && isValidRoom(roomName)) {
+      var userId = match[1];
+
       removeUser(roomName, userId);
     }
   });
@@ -69,7 +71,9 @@ module.exports = function (robot) {
 
   function getMatchKey(roomName) {
     var now = Date.now();
-    return roomName + '_' + getWeekNumber(now) + '_match_info';
+    var year = new Date().getFullYear();
+
+    return roomName + '_' + year + '_' + getWeekNumber(now) + '_match';
   }
 
   function isValidRoom(roomName) {
@@ -91,7 +95,7 @@ module.exports = function (robot) {
       else {
         robot.messageRoom(roomName, 'no hay jugadores anotados');
       }
-    }, 10000);
+    }, 20000);
   }
 
   function getWeekNumber(d) {
