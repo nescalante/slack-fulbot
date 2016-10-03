@@ -33,7 +33,6 @@ module.exports = function (robot) {
   robot.hear(/@(.+) no juega$/, function (res) {
     var match = /\<@(.+)\> no juega$/.exec(res.message.rawText);
     var user = res.message.user;
-    var admins = process.env.ADMIN_NAME.split(';');
     var roomName = res.message.room;
 
     if (match && isValidRoom(roomName)) {
@@ -77,7 +76,11 @@ module.exports = function (robot) {
   }
 
   function isValidRoom(roomName) {
-    return process.env.ROOM.split(';').some(function(r) { return r === roomName });
+    if (process.env.ROOM) {
+      return process.env.ROOM.split(';').some(function(r) { return r === roomName });
+    }
+
+    return true;
   }
 
   function updateMatch(roomName, list) {
