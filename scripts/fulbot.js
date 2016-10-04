@@ -1,6 +1,11 @@
 module.exports = function (robot) {
   var listTimeout;
 
+  robot.hear(/(^juegan|^list|^lista|^quienes (juegan|van){1})/i, function (res) {
+    var roomName = res.message.room;
+    showUsers(roomName);
+  });
+
   robot.hear(/(^juego|^voy|^\+1)/i, function (res) {
     var roomName = res.message.room;
     var user = res.message.user;
@@ -92,13 +97,18 @@ module.exports = function (robot) {
     }
 
     listTimeout = setTimeout(function () {
-      if (list.length) {
-        robot.messageRoom(roomName, 'anotados: \n - ' + list.map(function (i) { return '<@' + i.id + '>' }).join('\n - '));
-      }
-      else {
-        robot.messageRoom(roomName, 'no hay jugadores anotados');
-      }
+      showUsers(roomName);
     }, 20000);
+
+  }
+
+  function showUsers(roomName){
+    var list = getMatch(roomName);
+    if (list.length) {
+      robot.messageRoom(roomName, 'anotados: \n - ' + list.map(function (i) { return '<@' + i.id + '>' }).join('\n - '));
+    } else {
+      robot.messageRoom(roomName, 'no hay jugadores anotados');
+    }
   }
 
   function getWeekNumber(d) {
