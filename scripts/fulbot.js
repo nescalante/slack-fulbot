@@ -1,9 +1,17 @@
+var fs = require('fs');
+var path = require('path');
+
 module.exports = function (robot) {
   var listTimeout;
 
   robot.hear(/(^juegan|^list|^lista|^quienes (juegan|van){1})/i, function (res) {
     var roomName = res.message.room;
     showUsers(roomName);
+  });
+
+  robot.hear(/(^reglas)/i, function (res) {
+    var roomName = res.message.room;
+    showRules(roomName);
   });
 
   robot.hear(/(^juego|^voy|^\+1)/i, function (res) {
@@ -109,6 +117,10 @@ module.exports = function (robot) {
     } else {
       robot.messageRoom(roomName, 'no hay jugadores anotados');
     }
+  }
+
+  function showRules(roomName) {
+    robot.messageRoom(roomName, fs.readFileSync(path.join(__dirname, '../assets/rules.txt')));
   }
 
   function getWeekNumber(d) {
