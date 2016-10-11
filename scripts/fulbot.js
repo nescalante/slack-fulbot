@@ -16,6 +16,11 @@ module.exports = function (robot) {
     showRules(roomName);
   });
 
+  robot.hear(/(^equipos)/i, function (res) {
+    var roomName = res.message.room;
+    buildRandomTeams(roomName);
+  });
+
   robot.hear(/(^juego|^voy|^\+1)/i, function (res) {
     var roomName = res.message.room;
     var user = res.message.user;
@@ -117,25 +122,25 @@ module.exports = function (robot) {
     var totalUsers = list.length;
     var usersToComplete = MAX_USERS_NUMBER - totalUsers;
     if (totalUsers) {
-      var titulares = list.filter(function (player, index) { return index < 10 });
-      var suplentes = list.filter(function (player, index) { return index >= 10 });
+      var titulares = list.filter(function (player, index) { return index < MAX_USERS_NUMBER });
+      var suplentes = list.filter(function (player, index) { return index >= MAX_USERS_NUMBER });
 
       var message = 'anotados (' + totalUsers + '): \n';
-      message += titulares.map(function (i) { return '- <@' + i.id + '>' }).join('\n');
+      message += listPlayers(titulares);
 
       message += '\n';
       message += usersToComplete === 1 ? 'falta ' + usersToComplete : (usersToComplete > 0 ? 'faltan ' + usersToComplete : 'Completamos!');
 
-      if (totalUsers > 10) {
+      if (totalUsers > MAX_USERS_NUMBER) {
         message += '\n-------------\nSuplentes: \n';
-        message += suplentes.map(function (i) { return '- <@' + i.id + '>' }).join('\n');
+        message += listPlayers(suplentes);
       }
 
       robot.messageRoom(roomName,  message);
     } else {
       robot.messageRoom(roomName, 'no hay jugadores anotados');
     }
-    
+
     if (listTimeout) {
       clearTimeout(listTimeout);
     }
@@ -145,6 +150,46 @@ module.exports = function (robot) {
     var rulesPath = path.join(__dirname, '../assets/rules.txt');
     var rules = fs.readFileSync(rulesPath);
     robot.messageRoom(roomName, rules.toString());
+  }
+
+  function buildRandomTeams(roomName) {
+    var list = getMatch(roomName).slice(0);
+
+    if (list.length) {
+      if (list.length >= MAX_USERS_NUMBER) {
+        var newList = [];
+        for (var i = 0; i < MAX_USERS_NUMBER; i++) {
+          var pos = Math.floor(Math.random() * MAX_USERS_NUMBER - i);
+          newList[i] = list.splice(pos, 1)[0];
+        }
+
+        var teamOne = newList.filter(function (player, index) {
+          return index < (MAX_USERS_NUMBER / 2);
+        });
+        var teamTwo = newList.filter(function (player, index) {
+          return index >= (MAX_USERS_NUMBER / 2);
+        });
+
+        robot.messageRoom(roomName, 'Equipos:\n');
+        robot.messageRoom(roomName, showTeam('Equipo 1', teamOne));
+        robot.messageRoom(roomName, '--------------\n');
+        robot.messageRoom(roomName, showTeam('Equipo 2', teamTwo));
+      } else {
+        robot.messageRoom(roomName, 'No hay suficientes jugadores anotados. Faltan ' + (MAX_USERS_NUMBER - list.length));
+      }
+    } else {
+      robot.messageRoom(roomName, 'No hay suficientes jugadores anotados. Faltan ' + (MAX_USERS_NUMBER - list.length));
+    }
+  }
+
+  function showTeam(teamName, players) {
+    var message = teamName + ':\n';
+    message += listPlayers(players);
+    return message;
+  }
+
+  function listPlayers(players) {
+    return players.map(function (i) { return '- <@' + i.id + '>' }).join('\n');
   }
 
   function getWeekNumber(d) {
