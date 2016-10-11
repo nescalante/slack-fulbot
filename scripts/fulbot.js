@@ -1,6 +1,8 @@
 var fs = require('fs');
 var path = require('path');
 
+var MAX_USERS_NUMBER = 10;
+
 module.exports = function (robot) {
   var listTimeout;
 
@@ -112,8 +114,12 @@ module.exports = function (robot) {
 
   function showUsers(roomName){
     var list = getMatch(roomName);
-    if (list.length) {
-      robot.messageRoom(roomName, 'anotados: \n - ' + list.map(function (i) { return '<@' + i.id + '>' }).join('\n - '));
+    var totalUsers = list.length;
+    if (totalUsers) {
+      var message = 'anotados (' + totalUsers + '): \n';
+      message += list.map(function (i) { return '- <@' + i.id + '>' }).join('\n');
+      message += '\nfaltan ' + (MAX_USERS_NUMBER - totalUsers);
+      robot.messageRoom(roomName,  message);
     } else {
       robot.messageRoom(roomName, 'no hay jugadores anotados');
     }
