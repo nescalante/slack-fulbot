@@ -112,7 +112,7 @@ module.exports = function (robot) {
 
   }
 
-  function showUsers(roomName){
+  function showUsers(roomName) {
     var list = getMatch(roomName);
     var totalUsers = list.length;
     var usersToComplete = MAX_USERS_NUMBER - totalUsers;
@@ -134,6 +134,10 @@ module.exports = function (robot) {
       robot.messageRoom(roomName,  message);
     } else {
       robot.messageRoom(roomName, 'no hay jugadores anotados');
+    }
+    
+    if (listTimeout) {
+      clearTimeout(listTimeout);
     }
   }
 
