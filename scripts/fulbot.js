@@ -115,10 +115,22 @@ module.exports = function (robot) {
   function showUsers(roomName){
     var list = getMatch(roomName);
     var totalUsers = list.length;
+    var usersToComplete = MAX_USERS_NUMBER - totalUsers;
     if (totalUsers) {
+      var titulares = list.filter(function (player, index) { return index < 10 });
+      var suplentes = list.filter(function (player, index) { return index >= 10 });
+
       var message = 'anotados (' + totalUsers + '): \n';
-      message += list.map(function (i) { return '- <@' + i.id + '>' }).join('\n');
-      message += '\nfaltan ' + (MAX_USERS_NUMBER - totalUsers);
+      message += titulares.map(function (i) { return '- <@' + i.id + '>' }).join('\n');
+
+      message += '\n';
+      message += usersToComplete === 1 ? 'falta ' + usersToComplete : (usersToComplete > 0 ? 'faltan ' + usersToComplete : 'completamos');
+
+      if (totalUsers > 10) {
+        message += '\nSuplentes: ';
+        message += suplentes.map(function (i) { return '- <@' + i.id + '>' }).join('\n');
+      }
+
       robot.messageRoom(roomName,  message);
     } else {
       robot.messageRoom(roomName, 'no hay jugadores anotados');
