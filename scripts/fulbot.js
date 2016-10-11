@@ -120,7 +120,9 @@ module.exports = function (robot) {
   }
 
   function showRules(roomName) {
-    robot.messageRoom(roomName, fs.readFileSync(path.join(__dirname, '../assets/rules.txt')));
+    var rulesPath = path.join(__dirname, '../assets/rules.txt');
+    var rules = fs.readFileSync(rulesPath);
+    robot.messageRoom(roomName, rules.toString());
   }
 
   function getWeekNumber(d) {
