@@ -124,10 +124,10 @@ module.exports = function (robot) {
       message += titulares.map(function (i) { return '- <@' + i.id + '>' }).join('\n');
 
       message += '\n';
-      message += usersToComplete === 1 ? 'falta ' + usersToComplete : (usersToComplete > 0 ? 'faltan ' + usersToComplete : 'completamos');
+      message += usersToComplete === 1 ? 'falta ' + usersToComplete : (usersToComplete > 0 ? 'faltan ' + usersToComplete : 'Completamos!');
 
       if (totalUsers > 10) {
-        message += '\nSuplentes: ';
+        message += '\n-------------\nSuplentes: \n';
         message += suplentes.map(function (i) { return '- <@' + i.id + '>' }).join('\n');
       }
 
