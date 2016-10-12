@@ -122,8 +122,8 @@ module.exports = function (robot) {
     var totalUsers = list.length;
     var usersToComplete = MAX_USERS_NUMBER - totalUsers;
     if (totalUsers) {
-      var titulares = list.filter(function (player, index) { return index < MAX_USERS_NUMBER });
-      var suplentes = list.filter(function (player, index) { return index >= MAX_USERS_NUMBER });
+      var titulares = list.slice(0, MAX_USERS_NUMBER);
+      var suplentes = list.slice(MAX_USERS_NUMBER);
 
       var message = 'anotados (' + totalUsers + '): \n';
       message += listPlayers(titulares);
@@ -163,12 +163,8 @@ module.exports = function (robot) {
           newList[i] = list.splice(pos, 1)[0];
         }
 
-        var teamOne = newList.filter(function (player, index) {
-          return index < (MAX_USERS_NUMBER / 2);
-        });
-        var teamTwo = newList.filter(function (player, index) {
-          return index >= (MAX_USERS_NUMBER / 2);
-        });
+        var teamOne = newList.slice(0, MAX_USERS_NUMBER / 2);
+        var teamTwo = newList.slice(MAX_USERS_NUMBER / 2, MAX_USERS_NUMBER);
 
         robot.messageRoom(roomName, 'Equipos:\n');
         robot.messageRoom(roomName, showTeam('Equipo 1', teamOne));
