@@ -185,7 +185,7 @@ module.exports = function (robot) {
   }
 
   function listPlayers(players) {
-    return players.map(function (i) { return '- <@' + i.id + '>' }).join('\n');
+    return players.map(function (i) { return '- ' + i.id }).join('\n');
   }
 
   function getWeekNumber(d) {
