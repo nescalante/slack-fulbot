@@ -6,7 +6,7 @@ var MAX_USERS_NUMBER = 10;
 module.exports = function (robot) {
   var listTimeout;
 
-  robot.hear(/(^juegan|^list|^lista|^quienes (juegan|van){1})/i, function (res) {
+  robot.hear(/(^lista$|^quienes (juegan|van){1}$)/i, function (res) {
     var roomName = res.message.room;
     showUsers(roomName);
   });
