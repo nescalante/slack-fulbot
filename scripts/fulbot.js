@@ -62,6 +62,11 @@ module.exports = function (robot) {
     }
   });
 
+  robot.respond(/help/, function (res) {
+    var roomName = res.message.room;
+    showHelp(roomName);
+  });
+
   function addUser(roomName, user) {
     var list = getMatch(roomName);
 
@@ -144,6 +149,12 @@ module.exports = function (robot) {
     if (listTimeout) {
       clearTimeout(listTimeout);
     }
+  }
+
+  function showHelp(roomName) {
+    var rulesPath = path.join(__dirname, '../assets/help.txt');
+    var rules = fs.readFileSync(rulesPath);
+    robot.messageRoom(roomName, rules.toString());
   }
 
   function showRules(roomName) {
