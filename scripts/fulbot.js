@@ -30,7 +30,7 @@ module.exports = function (robot) {
     }
   });
 
-  robot.hear(/(^me bajo|^-1$)/i, function (res) {
+  robot.hear(/(^me bajo|^-1|^no juego)/i, function (res) {
     var roomName = res.message.room;
     var user = res.message.user;
 
