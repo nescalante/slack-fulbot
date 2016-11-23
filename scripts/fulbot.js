@@ -169,9 +169,10 @@ module.exports = function (robot) {
     if (list.length) {
       if (list.length >= MAX_USERS_NUMBER) {
         var newList = [];
+        var tempList = list.slice(0, MAX_USERS_NUMBER);
         for (var i = 0; i < MAX_USERS_NUMBER; i++) {
           var pos = Math.floor(Math.random() * MAX_USERS_NUMBER - i);
-          newList[i] = list.splice(pos, 1)[0];
+          newList[i] = tempList.splice(pos, 1)[0];
         }
 
         var teamOne = newList.slice(0, MAX_USERS_NUMBER / 2);
