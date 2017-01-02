@@ -1,7 +1,7 @@
 var fs = require('fs');
 var path = require('path');
 
-var MAX_USERS_NUMBER = 10;
+var MAX_USERS_NUMBER = parseInt(process.env.ROOM, 10) || 10;
 
 module.exports = function (robot) {
   var listTimeout;
