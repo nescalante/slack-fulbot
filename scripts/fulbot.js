@@ -34,6 +34,10 @@ module.exports = function (robot) {
       }
 
       robot.messageRoom(roomName, replyMessage);
+
+      if (list.length === MAX_USERS_NUMBER) {
+        showUsers(roowName);
+      }
     }
   });
 
@@ -50,7 +54,6 @@ module.exports = function (robot) {
       }
 
       robot.messageRoom(roomName, replyMessage);
-
     }
   });
 
@@ -68,6 +71,10 @@ module.exports = function (robot) {
       }
 
       robot.messageRoom(roomName, replyMessage);
+
+      if (list.length === MAX_USERS_NUMBER) {
+        showUsers(roowName);
+      }
     }
   });
 
