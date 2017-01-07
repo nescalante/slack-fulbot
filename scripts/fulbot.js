@@ -26,10 +26,10 @@ module.exports = function (robot) {
     var user = res.message.user;
 
     if (isValidRoom(roomName)) {
-      var prevList = getMatch(roomName);
+      var prevList = getMatch(roomName).length;
       var list = addUser(roomName, user);
 
-      if (list.length !== prevList.length) {
+      if (list.length !== prevList) {
         var replyMessage = 'anotado <@' + user.id + '>';
 
         if (list.length < MAX_USERS_NUMBER) {
@@ -70,10 +70,10 @@ module.exports = function (robot) {
 
     if (match && isValidRoom(roomName)) {
       var userId = match[1];
-      var prevList = getMatch(roomName);
+      var prevList = getMatch(roomName).length;
       var list = addUser(roomName, { id: userId });
 
-      if (list.length !== prevList.length) {
+      if (list.length !== prevList) {
         var replyMessage = 'anotado <@' + userId + '>';
 
         if (list.length < MAX_USERS_NUMBER) {
