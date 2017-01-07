@@ -86,7 +86,7 @@ module.exports = function (robot) {
           showUsers(roowName);
         }
       } else {
-        var replyMessage = 'ya estabas anotado <@' + user.id + '>';
+        var replyMessage = 'ya estabas anotado <@' + userId + '>';
         robot.messageRoom(roomName, replyMessage);
       }
     }
