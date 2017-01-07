@@ -42,7 +42,7 @@ module.exports = function (robot) {
           showUsers(roowName);
         }
       } else {
-        var replyMessage = 'ya estabas anotado <@' + user.id + '>';
+        var replyMessage = 'ya estabas anotado, <@' + user.id + '>';
         robot.messageRoom(roomName, replyMessage);
       }
     }
@@ -86,7 +86,7 @@ module.exports = function (robot) {
           showUsers(roowName);
         }
       } else {
-        var replyMessage = 'ya estabas anotado <@' + userId + '>';
+        var replyMessage = 'ya estaba anotado <@' + userId + '>';
         robot.messageRoom(roomName, replyMessage);
       }
     }
