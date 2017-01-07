@@ -26,7 +26,14 @@ module.exports = function (robot) {
     var user = res.message.user;
 
     if (isValidRoom(roomName)) {
-      addUser(roomName, user);
+      var list = addUser(roomName, user);
+      var replyMessage = 'anotado <@' + user.id + '>';
+
+      if (list.length < MAX_USERS_NUMBER) {
+        replyMessage += ', faltan ' + (MAX_USERS_NUMBER - list.length);
+      }
+
+      robot.messageRoom(roomName, replyMessage);
     }
   });
 
@@ -35,7 +42,15 @@ module.exports = function (robot) {
     var user = res.message.user;
 
     if (isValidRoom(roomName)) {
-      removeUser(roomName, user.id);
+      var list = removeUser(roomName, user.id);
+      var replyMessage = 'removido <@' + user.id + '>';
+
+      if (list.length < MAX_USERS_NUMBER) {
+        replyMessage += ', ahora faltan ' + (MAX_USERS_NUMBER - list.length);
+      }
+
+      robot.messageRoom(roomName, replyMessage);
+
     }
   });
 
@@ -45,8 +60,14 @@ module.exports = function (robot) {
 
     if (match && isValidRoom(roomName)) {
       var userId = match[1];
+      var list = addUser(roomName, { id: userId });
+      var replyMessage = 'anotado <@' + userId + '>';
 
-      addUser(roomName, { id: userId });
+      if (list.length < MAX_USERS_NUMBER) {
+        replyMessage += ', faltan ' + (MAX_USERS_NUMBER - list.length);
+      }
+
+      robot.messageRoom(roomName, replyMessage);
     }
   });
 
@@ -57,8 +78,14 @@ module.exports = function (robot) {
 
     if (match && isValidRoom(roomName)) {
       var userId = match[1];
+      var list = removeUser(roomName, userId);
+      var replyMessage = 'removido <@' + userId + '>';
 
-      removeUser(roomName, userId);
+      if (list.length < MAX_USERS_NUMBER) {
+        replyMessage += ', ahora faltan ' + (MAX_USERS_NUMBER - list.length);
+      }
+
+      robot.messageRoom(roomName, replyMessage);
     }
   });
 
@@ -74,6 +101,8 @@ module.exports = function (robot) {
       list.push({ id: user.id, name: user.name });
       updateMatch(roomName, list);
     }
+
+    return list;
   }
 
   function removeUser(roomName, userId) {
@@ -85,6 +114,8 @@ module.exports = function (robot) {
     if (list.length !== initialLength) {
       updateMatch(roomName, list);
     }
+
+    return list;
   }
 
   function getMatch(roomName) {
@@ -119,7 +150,6 @@ module.exports = function (robot) {
     listTimeout = setTimeout(function () {
       showUsers(roomName);
     }, 20000);
-
   }
 
   function showUsers(roomName) {
