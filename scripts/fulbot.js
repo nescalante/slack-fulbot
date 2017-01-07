@@ -26,17 +26,24 @@ module.exports = function (robot) {
     var user = res.message.user;
 
     if (isValidRoom(roomName)) {
+      var prevList = getMatch(roomName);
       var list = addUser(roomName, user);
-      var replyMessage = 'anotado <@' + user.id + '>';
 
-      if (list.length < MAX_USERS_NUMBER) {
-        replyMessage += ', faltan ' + (MAX_USERS_NUMBER - list.length);
-      }
+      if (list.length !== prevList.length) {
+        var replyMessage = 'anotado <@' + user.id + '>';
 
-      robot.messageRoom(roomName, replyMessage);
+        if (list.length < MAX_USERS_NUMBER) {
+          replyMessage += ', faltan ' + (MAX_USERS_NUMBER - list.length);
+        }
 
-      if (list.length === MAX_USERS_NUMBER) {
-        showUsers(roowName);
+        robot.messageRoom(roomName, replyMessage);
+
+        if (list.length === MAX_USERS_NUMBER) {
+          showUsers(roowName);
+        }
+      } else {
+        var replyMessage = 'ya estabas anotado <@' + user.id + '>';
+        robot.messageRoom(roomName, replyMessage);
       }
     }
   });
@@ -63,17 +70,24 @@ module.exports = function (robot) {
 
     if (match && isValidRoom(roomName)) {
       var userId = match[1];
+      var prevList = getMatch(roomName);
       var list = addUser(roomName, { id: userId });
-      var replyMessage = 'anotado <@' + userId + '>';
 
-      if (list.length < MAX_USERS_NUMBER) {
-        replyMessage += ', faltan ' + (MAX_USERS_NUMBER - list.length);
-      }
+      if (list.length !== prevList.length) {
+        var replyMessage = 'anotado <@' + userId + '>';
 
-      robot.messageRoom(roomName, replyMessage);
+        if (list.length < MAX_USERS_NUMBER) {
+          replyMessage += ', faltan ' + (MAX_USERS_NUMBER - list.length);
+        }
 
-      if (list.length === MAX_USERS_NUMBER) {
-        showUsers(roowName);
+        robot.messageRoom(roomName, replyMessage);
+
+        if (list.length === MAX_USERS_NUMBER) {
+          showUsers(roowName);
+        }
+      } else {
+        var replyMessage = 'ya estabas anotado <@' + user.id + '>';
+        robot.messageRoom(roomName, replyMessage);
       }
     }
   });
