@@ -53,14 +53,22 @@ module.exports = function (robot) {
     var user = res.message.user;
 
     if (isValidRoom(roomName)) {
+      var prevList = getMatch(roomName).length;
       var list = removeUser(roomName, user.id);
-      var replyMessage = 'removido <@' + user.id + '>';
 
-      if (list.length < MAX_USERS_NUMBER) {
-        replyMessage += ', ahora faltan ' + (MAX_USERS_NUMBER - list.length);
+      if (list.length !== prevList) {
+        var replyMessage = 'removido <@' + user.id + '>';
+
+        if (list.length < MAX_USERS_NUMBER) {
+          replyMessage += ', ahora faltan ' + (MAX_USERS_NUMBER - list.length);
+        }
+
+        robot.messageRoom(roomName, replyMessage);
+      } else {
+        var replyMessage = 'no estabas anotado, <@' + user.id + '>';
+
+        robot.messageRoom(roomName, replyMessage);
       }
-
-      robot.messageRoom(roomName, replyMessage);
     }
   });
 
@@ -99,14 +107,20 @@ module.exports = function (robot) {
 
     if (match && isValidRoom(roomName)) {
       var userId = match[1];
+      var prevList = getMatch(roomName).length;
       var list = removeUser(roomName, userId);
-      var replyMessage = 'removido <@' + userId + '>';
+      if (list.length !== prevList) {
+        var replyMessage = 'removido <@' + userId + '>';
 
-      if (list.length < MAX_USERS_NUMBER) {
-        replyMessage += ', ahora faltan ' + (MAX_USERS_NUMBER - list.length);
+        if (list.length < MAX_USERS_NUMBER) {
+          replyMessage += ', ahora faltan ' + (MAX_USERS_NUMBER - list.length);
+        }
+
+        robot.messageRoom(roomName, replyMessage);
+      } else {
+        var replyMessage = '<@' + userId + '> no estaba anotado';
+        robot.messageRoom(roomName, replyMessage);
       }
-
-      robot.messageRoom(roomName, replyMessage);
     }
   });
 
@@ -169,7 +183,7 @@ module.exports = function (robot) {
     }
 
     listTimeout = setTimeout(function () {
-      showUsers(roomName);
+      // showUsers(roomName);
     }, 20000);
   }
 
