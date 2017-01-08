@@ -183,8 +183,8 @@ module.exports = function (robot) {
     }
 
     listTimeout = setTimeout(function () {
-      // showUsers(roomName);
-    }, 20000);
+      showUsers(roomName);
+    }, 300000);
   }
 
   function showUsers(roomName) {
@@ -243,10 +243,9 @@ module.exports = function (robot) {
         var teamOne = newList.slice(0, MAX_USERS_NUMBER / 2);
         var teamTwo = newList.slice(MAX_USERS_NUMBER / 2, MAX_USERS_NUMBER);
 
-        robot.messageRoom(roomName, 'Equipos:\n');
-        robot.messageRoom(roomName, showTeam('Equipo 1', teamOne));
-        robot.messageRoom(roomName, '--------------\n');
-        robot.messageRoom(roomName, showTeam('Equipo 2', teamTwo));
+        robot.messageRoom(roomName, showTeam('*Equipo 1*', teamOne));
+        robot.messageRoom(roomName, '\n\n');
+        robot.messageRoom(roomName, showTeam('*Equipo 2*', teamTwo));
       } else {
         robot.messageRoom(roomName, 'No hay suficientes jugadores anotados. Faltan ' + (MAX_USERS_NUMBER - list.length));
       }
