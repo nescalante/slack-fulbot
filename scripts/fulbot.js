@@ -37,7 +37,7 @@ module.exports = function (robot) {
         if (list.length !== MAX_USERS_NUMBER) {
           robot.messageRoom(roomName, replyMessage);
         } else {
-          showUsers(roowName);
+          showUsers(roomName);
         }
       } else {
         var replyMessage = 'ya estabas anotado, <@' + user.id + '>';
@@ -89,7 +89,7 @@ module.exports = function (robot) {
         robot.messageRoom(roomName, replyMessage);
 
         if (list.length === MAX_USERS_NUMBER) {
-          showUsers(roowName);
+          showUsers(roomName);
         }
       } else {
         var replyMessage = 'ya estaba anotado <@' + userId + '>';
