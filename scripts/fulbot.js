@@ -34,9 +34,9 @@ module.exports = function (robot) {
           replyMessage += ', faltan ' + (MAX_USERS_NUMBER - list.length);
         }
 
-        robot.messageRoom(roomName, replyMessage);
-
-        if (list.length === MAX_USERS_NUMBER) {
+        if (list.length !== MAX_USERS_NUMBER) {
+          robot.messageRoom(roomName, replyMessage);
+        } else {
           showUsers(roowName);
         }
       } else {
@@ -181,6 +181,7 @@ module.exports = function (robot) {
     var list = getMatch(roomName);
     var totalUsers = list.length;
     var usersToComplete = MAX_USERS_NUMBER - totalUsers;
+
     if (totalUsers) {
       var titulares = list.slice(0, MAX_USERS_NUMBER);
       var suplentes = list.slice(MAX_USERS_NUMBER);
