@@ -4,8 +4,6 @@ var path = require('path');
 var MAX_USERS_NUMBER = parseInt(process.env.MAX_USERS_NUMBER, 10) || 10;
 
 module.exports = function (robot) {
-  var listTimeout;
-
   robot.hear(/(^lista$|^quienes (juegan|van){1}$)/i, function (res) {
     var roomName = res.message.room;
     showUsers(roomName);
@@ -177,14 +175,6 @@ module.exports = function (robot) {
   function updateMatch(roomName, list) {
     var matchKey = getMatchKey(roomName);
     robot.brain.set(matchKey, list);
-
-    if (listTimeout) {
-      clearTimeout(listTimeout);
-    }
-
-    listTimeout = setTimeout(function () {
-      showUsers(roomName);
-    }, 300000);
   }
 
   function showUsers(roomName) {
@@ -209,10 +199,6 @@ module.exports = function (robot) {
       robot.messageRoom(roomName,  message);
     } else {
       robot.messageRoom(roomName, 'no hay jugadores anotados');
-    }
-
-    if (listTimeout) {
-      clearTimeout(listTimeout);
     }
   }
 
