@@ -28,7 +28,12 @@ module.exports = function (robot) {
       var list = addUser(roomName, user);
 
       if (list.length !== prevList) {
-        var replyMessage = 'anotado <@' + user.id + '>';
+        var replyMessage;
+        if (list.length > MAX_USERS_NUMBER) {
+          replyMessage = 'anotado de suplente <@' + user.id + '>';
+        } else {
+          replyMessage = 'anotado <@' + user.id + '>';
+        }
 
         if (list.length < MAX_USERS_NUMBER) {
           replyMessage += ', faltan ' + (MAX_USERS_NUMBER - list.length);
@@ -59,6 +64,8 @@ module.exports = function (robot) {
 
         if (list.length < MAX_USERS_NUMBER) {
           replyMessage += ', ahora faltan ' + (MAX_USERS_NUMBER - list.length);
+        } else {
+          replyMessage += ', entra <@' + list[MAX_USERS_NUMBER].id + '>';
         }
 
         robot.messageRoom(roomName, replyMessage);
@@ -80,7 +87,12 @@ module.exports = function (robot) {
       var list = addUser(roomName, { id: userId });
 
       if (list.length !== prevList) {
-        var replyMessage = 'anotado <@' + userId + '>';
+        var replyMessage;
+        if (list.length > MAX_USERS_NUMBER) {
+          replyMessage = 'anotado de suplente <@' + userId + '>';
+        } else {
+          replyMessage = 'anotado <@' + userId + '>';
+        }
 
         if (list.length < MAX_USERS_NUMBER) {
           replyMessage += ', faltan ' + (MAX_USERS_NUMBER - list.length);
@@ -112,6 +124,8 @@ module.exports = function (robot) {
 
         if (list.length < MAX_USERS_NUMBER) {
           replyMessage += ', ahora faltan ' + (MAX_USERS_NUMBER - list.length);
+        } else {
+          replyMessage += ', entra <@' + list[MAX_USERS_NUMBER].id + '>';
         }
 
         robot.messageRoom(roomName, replyMessage);
