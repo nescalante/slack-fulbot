@@ -6,12 +6,12 @@ var MAX_USERS_NUMBER;
 if (process.env.MAX_USERS_NUMBER) {
   MAX_USERS_NUMBER = JSON.parse(process.env.MAX_USERS_NUMBER);
 } else {
-  MAX_USERS_NUMBER = 10;
+  MAX_USERS_NUMBER = 0;
 }
 
 function getMaxUsersNumber(roomName) {
   if (typeof MAX_USERS_NUMBER === "object") {
-    return MAX_USERS_NUMBER[roomName] || 10;
+    return MAX_USERS_NUMBER[roomName] || 0;
   } else {
     return MAX_USERS_NUMBER;
   }
@@ -54,7 +54,7 @@ module.exports = function (robot) {
           replyMessage += ', faltan ' + (usersNumber - list.length);
         }
 
-        if (list.length !== usersNumber) {
+        if (usersNumber && list.length !== usersNumber) {
           robot.messageRoom(roomName, replyMessage);
         } else {
           showUsers(roomName);
@@ -118,7 +118,7 @@ module.exports = function (robot) {
 
         robot.messageRoom(roomName, replyMessage);
 
-        if (list.length === usersNumber) {
+        if (usersNumber && list.length === usersNumber) {
           showUsers(roomName);
         }
       } else {
