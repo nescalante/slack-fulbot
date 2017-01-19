@@ -57,6 +57,7 @@ module.exports = function (robot) {
 
     if (isValidRoom(roomName)) {
       var prevList = getMatch(roomName).length;
+      var isConfirmed = !!getMatch(roomName).find(function (u, ix) { return ix < MAX_USERS_NUMBER && u.id === user.id; });
       var list = removeUser(roomName, user.id);
 
       if (list.length !== prevList) {
@@ -64,7 +65,7 @@ module.exports = function (robot) {
 
         if (list.length < MAX_USERS_NUMBER) {
           replyMessage += ', ahora faltan ' + (MAX_USERS_NUMBER - list.length);
-        } else {
+        } else if (isConfirmed) {
           replyMessage += ', entra <@' + list[MAX_USERS_NUMBER - 1].id + '>';
         }
 
@@ -117,6 +118,7 @@ module.exports = function (robot) {
 
     if (match && isValidRoom(roomName)) {
       var userId = match[1];
+      var isConfirmed = !!getMatch(roomName).find(function (u, ix) { return ix < MAX_USERS_NUMBER && u.id === userId; });
       var prevList = getMatch(roomName).length;
       var list = removeUser(roomName, userId);
       if (list.length !== prevList) {
@@ -124,7 +126,7 @@ module.exports = function (robot) {
 
         if (list.length < MAX_USERS_NUMBER) {
           replyMessage += ', ahora faltan ' + (MAX_USERS_NUMBER - list.length);
-        } else {
+        } else if (isConfirmed) {
           replyMessage += ', entra <@' + list[MAX_USERS_NUMBER - 1].id + '>';
         }
 
