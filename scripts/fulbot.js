@@ -65,7 +65,7 @@ module.exports = function (robot) {
         if (list.length < MAX_USERS_NUMBER) {
           replyMessage += ', ahora faltan ' + (MAX_USERS_NUMBER - list.length);
         } else {
-          replyMessage += ', entra <@' + list[MAX_USERS_NUMBER].id + '>';
+          replyMessage += ', entra <@' + list[MAX_USERS_NUMBER - 1].id + '>';
         }
 
         robot.messageRoom(roomName, replyMessage);
@@ -125,7 +125,7 @@ module.exports = function (robot) {
         if (list.length < MAX_USERS_NUMBER) {
           replyMessage += ', ahora faltan ' + (MAX_USERS_NUMBER - list.length);
         } else {
-          replyMessage += ', entra <@' + list[MAX_USERS_NUMBER].id + '>';
+          replyMessage += ', entra <@' + list[MAX_USERS_NUMBER - 1].id + '>';
         }
 
         robot.messageRoom(roomName, replyMessage);
