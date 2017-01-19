@@ -1,7 +1,21 @@
 var fs = require('fs');
 var path = require('path');
 
-var MAX_USERS_NUMBER = parseInt(process.env.MAX_USERS_NUMBER, 10) || 10;
+var MAX_USERS_NUMBER;
+
+if (process.env.MAX_USERS_NUMBER) {
+  MAX_USERS_NUMBER = JSON.parse(process.env.MAX_USERS_NUMBER);
+} else {
+  MAX_USERS_NUMBER = 10;
+}
+
+function getMaxUsersNumber(roomName) {
+  if (typeof MAX_USERS_NUMBER === "object") {
+    return MAX_USERS_NUMBER[roomName] || 10;
+  } else {
+    return MAX_USERS_NUMBER;
+  }
+}
 
 module.exports = function (robot) {
   robot.hear(/(^lista$|^quienes (juegan|van){1}$)/i, function (res) {
@@ -22,6 +36,7 @@ module.exports = function (robot) {
   robot.hear(/^(juego|voy|\+1)$/i, function (res) {
     var roomName = res.message.room;
     var user = res.message.user;
+    var usersNumber = getMaxUsersNumber(roomName);
 
     if (isValidRoom(roomName)) {
       var prevList = getMatch(roomName).length;
@@ -29,17 +44,17 @@ module.exports = function (robot) {
 
       if (list.length !== prevList) {
         var replyMessage;
-        if (list.length > MAX_USERS_NUMBER) {
+        if (list.length > usersNumber) {
           replyMessage = 'anotado de suplente <@' + user.id + '>';
         } else {
           replyMessage = 'anotado <@' + user.id + '>';
         }
 
-        if (list.length < MAX_USERS_NUMBER) {
-          replyMessage += ', faltan ' + (MAX_USERS_NUMBER - list.length);
+        if (list.length < usersNumber) {
+          replyMessage += ', faltan ' + (usersNumber - list.length);
         }
 
-        if (list.length !== MAX_USERS_NUMBER) {
+        if (list.length !== usersNumber) {
           robot.messageRoom(roomName, replyMessage);
         } else {
           showUsers(roomName);
@@ -54,19 +69,20 @@ module.exports = function (robot) {
   robot.hear(/^(me bajo|-1|no juego)$/i, function (res) {
     var roomName = res.message.room;
     var user = res.message.user;
+    var usersNumber = getMaxUsersNumber(roomName);
 
     if (isValidRoom(roomName)) {
       var prevList = getMatch(roomName).length;
-      var isConfirmed = !!getMatch(roomName).find(function (u, ix) { return ix < MAX_USERS_NUMBER && u.id === user.id; });
+      var isConfirmed = !!getMatch(roomName).find(function (u, ix) { return ix < usersNumber && u.id === user.id; });
       var list = removeUser(roomName, user.id);
 
       if (list.length !== prevList) {
         var replyMessage = 'removido <@' + user.id + '>';
 
-        if (list.length < MAX_USERS_NUMBER) {
-          replyMessage += ', ahora faltan ' + (MAX_USERS_NUMBER - list.length);
+        if (list.length < usersNumber) {
+          replyMessage += ', ahora faltan ' + (usersNumber - list.length);
         } else if (isConfirmed) {
-          replyMessage += ', entra <@' + list[MAX_USERS_NUMBER - 1].id + '>';
+          replyMessage += ', entra <@' + list[usersNumber - 1].id + '>';
         }
 
         robot.messageRoom(roomName, replyMessage);
@@ -81,6 +97,7 @@ module.exports = function (robot) {
   robot.hear(/@(.+) juega$/, function (res) {
     var match = /\<@(.+)\> juega$/.exec(res.message.rawText);
     var roomName = res.message.room;
+    var usersNumber = getMaxUsersNumber(roomName);
 
     if (match && isValidRoom(roomName)) {
       var userId = match[1];
@@ -89,19 +106,19 @@ module.exports = function (robot) {
 
       if (list.length !== prevList) {
         var replyMessage;
-        if (list.length > MAX_USERS_NUMBER) {
+        if (list.length > usersNumber) {
           replyMessage = 'anotado de suplente <@' + userId + '>';
         } else {
           replyMessage = 'anotado <@' + userId + '>';
         }
 
-        if (list.length < MAX_USERS_NUMBER) {
-          replyMessage += ', faltan ' + (MAX_USERS_NUMBER - list.length);
+        if (list.length < usersNumber) {
+          replyMessage += ', faltan ' + (usersNumber - list.length);
         }
 
         robot.messageRoom(roomName, replyMessage);
 
-        if (list.length === MAX_USERS_NUMBER) {
+        if (list.length === usersNumber) {
           showUsers(roomName);
         }
       } else {
@@ -115,19 +132,20 @@ module.exports = function (robot) {
     var match = /\<@(.+)\> no juega$/.exec(res.message.rawText);
     var user = res.message.user;
     var roomName = res.message.room;
+    var usersNumber = getMaxUsersNumber(roomName);
 
     if (match && isValidRoom(roomName)) {
       var userId = match[1];
-      var isConfirmed = !!getMatch(roomName).find(function (u, ix) { return ix < MAX_USERS_NUMBER && u.id === userId; });
+      var isConfirmed = !!getMatch(roomName).find(function (u, ix) { return ix < usersNumber && u.id === userId; });
       var prevList = getMatch(roomName).length;
       var list = removeUser(roomName, userId);
       if (list.length !== prevList) {
         var replyMessage = 'removido <@' + userId + '>';
 
-        if (list.length < MAX_USERS_NUMBER) {
-          replyMessage += ', ahora faltan ' + (MAX_USERS_NUMBER - list.length);
+        if (list.length < usersNumber) {
+          replyMessage += ', ahora faltan ' + (usersNumber - list.length);
         } else if (isConfirmed) {
-          replyMessage += ', entra <@' + list[MAX_USERS_NUMBER - 1].id + '>';
+          replyMessage += ', entra <@' + list[usersNumber - 1].id + '>';
         }
 
         robot.messageRoom(roomName, replyMessage);
@@ -196,11 +214,12 @@ module.exports = function (robot) {
   function showUsers(roomName) {
     var list = getMatch(roomName);
     var totalUsers = list.length;
-    var usersToComplete = MAX_USERS_NUMBER - totalUsers;
+    var usersNumber = getMaxUsersNumber(roomName);
+    var usersToComplete = usersNumber - totalUsers;
 
     if (totalUsers) {
-      var titulares = list.slice(0, MAX_USERS_NUMBER);
-      var suplentes = list.slice(MAX_USERS_NUMBER);
+      var titulares = list.slice(0, usersNumber);
+      var suplentes = list.slice(usersNumber);
 
       var message = 'anotados (' + totalUsers + '): \n';
       message += listPlayers(titulares);
@@ -208,7 +227,7 @@ module.exports = function (robot) {
       message += '\n';
       message += usersToComplete === 1 ? 'falta ' + usersToComplete : (usersToComplete > 0 ? 'faltan ' + usersToComplete : 'Completamos!');
 
-      if (totalUsers > MAX_USERS_NUMBER) {
+      if (totalUsers > usersNumber) {
         message += '\n-------------\nSuplentes: \n';
         message += listPlayers(suplentes);
       }
@@ -233,27 +252,28 @@ module.exports = function (robot) {
 
   function buildRandomTeams(roomName) {
     var list = getMatch(roomName).slice(0);
+    var usersNumber = getMaxUsersNumber(roomName);
 
     if (list.length) {
-      if (list.length >= MAX_USERS_NUMBER) {
+      if (list.length >= usersNumber) {
         var newList = [];
-        var tempList = list.slice(0, MAX_USERS_NUMBER);
-        for (var i = 0; i < MAX_USERS_NUMBER; i++) {
-          var pos = Math.floor(Math.random() * MAX_USERS_NUMBER - i);
+        var tempList = list.slice(0, usersNumber);
+        for (var i = 0; i < usersNumber; i++) {
+          var pos = Math.floor(Math.random() * usersNumber - i);
           newList[i] = tempList.splice(pos, 1)[0];
         }
 
-        var teamOne = newList.slice(0, MAX_USERS_NUMBER / 2);
-        var teamTwo = newList.slice(MAX_USERS_NUMBER / 2, MAX_USERS_NUMBER);
+        var teamOne = newList.slice(0, usersNumber / 2);
+        var teamTwo = newList.slice(usersNumber / 2, usersNumber);
 
         robot.messageRoom(roomName, showTeam('*Equipo 1*', teamOne));
         robot.messageRoom(roomName, '\n\n');
         robot.messageRoom(roomName, showTeam('*Equipo 2*', teamTwo));
       } else {
-        robot.messageRoom(roomName, 'No hay suficientes jugadores anotados. Faltan ' + (MAX_USERS_NUMBER - list.length));
+        robot.messageRoom(roomName, 'No hay suficientes jugadores anotados. Faltan ' + (usersNumber - list.length));
       }
     } else {
-      robot.messageRoom(roomName, 'No hay suficientes jugadores anotados. Faltan ' + (MAX_USERS_NUMBER - list.length));
+      robot.messageRoom(roomName, 'No hay suficientes jugadores anotados. Faltan ' + (usersNumber - list.length));
     }
   }
 
