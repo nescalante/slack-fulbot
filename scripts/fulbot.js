@@ -9,17 +9,17 @@ module.exports = function (robot) {
     showUsers(roomName);
   });
 
-  robot.hear(/(^reglas)/i, function (res) {
+  robot.hear(/(^reglas$)/i, function (res) {
     var roomName = res.message.room;
     showRules(roomName);
   });
 
-  robot.hear(/(^equipos)/i, function (res) {
+  robot.hear(/(^equipos$)/i, function (res) {
     var roomName = res.message.room;
     buildRandomTeams(roomName);
   });
 
-  robot.hear(/(^juego|^voy|^\+1)/i, function (res) {
+  robot.hear(/^(juego|voy|\+1)$/i, function (res) {
     var roomName = res.message.room;
     var user = res.message.user;
 
@@ -51,7 +51,7 @@ module.exports = function (robot) {
     }
   });
 
-  robot.hear(/(^me bajo|^-1|^no juego)/i, function (res) {
+  robot.hear(/^(me bajo|-1|no juego)$/i, function (res) {
     var roomName = res.message.room;
     var user = res.message.user;
 
@@ -136,7 +136,7 @@ module.exports = function (robot) {
     }
   });
 
-  robot.respond(/help/, function (res) {
+  robot.respond(/^help$/, function (res) {
     var roomName = res.message.room;
     showHelp(roomName);
   });
