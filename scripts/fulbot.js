@@ -218,18 +218,19 @@ module.exports = function (robot) {
     var usersToComplete = usersNumber - totalUsers;
 
     if (totalUsers) {
-      var titulares = list.slice(0, usersNumber);
-      var suplentes = list.slice(usersNumber);
-
+      var titulares = usersNumber ? list.slice(0, usersNumber) : list;
       var message = 'anotados (' + totalUsers + '): \n';
       message += listPlayers(titulares);
 
-      message += '\n';
-      message += usersToComplete === 1 ? 'falta ' + usersToComplete : (usersToComplete > 0 ? 'faltan ' + usersToComplete : 'Completamos!');
+      if (usersNumber) {
+        var suplentes = list.slice(usersNumber);
+        message += '\n';
+        message += usersToComplete === 1 ? 'falta ' + usersToComplete : (usersToComplete > 0 ? 'faltan ' + usersToComplete : 'completamos!');
 
-      if (totalUsers > usersNumber) {
-        message += '\n-------------\nSuplentes: \n';
-        message += listPlayers(suplentes);
+        if (totalUsers > usersNumber) {
+          message += '\n-------------\nsuplentes: \n';
+          message += listPlayers(suplentes);
+        }
       }
 
       robot.messageRoom(roomName,  message);
