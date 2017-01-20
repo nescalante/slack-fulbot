@@ -44,7 +44,7 @@ module.exports = function (robot) {
 
       if (list.length !== prevList) {
         var replyMessage;
-        if (list.length > usersNumber) {
+        if (usersNumber && list.length > usersNumber) {
           replyMessage = 'anotado de suplente <@' + user.id + '>';
         } else {
           replyMessage = 'anotado <@' + user.id + '>';
@@ -106,7 +106,7 @@ module.exports = function (robot) {
 
       if (list.length !== prevList) {
         var replyMessage;
-        if (list.length > usersNumber) {
+        if (usersNumber && list.length > usersNumber) {
           replyMessage = 'anotado de suplente <@' + userId + '>';
         } else {
           replyMessage = 'anotado <@' + userId + '>';
