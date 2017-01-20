@@ -66,7 +66,7 @@ module.exports = function (robot) {
     }
   });
 
-  robot.hear(/^(me bajo|-1|no juego)$/i, function (res) {
+  robot.hear(/^(me bajo|-1|no juego|no voy)$/i, function (res) {
     var roomName = res.message.room;
     var user = res.message.user;
     var usersNumber = getMaxUsersNumber(roomName);
@@ -94,7 +94,7 @@ module.exports = function (robot) {
     }
   });
 
-  robot.hear(/@(.+) juega$/, function (res) {
+  robot.hear(/@(.+) (juega|va)$/, function (res) {
     var match = /\<@(.+)\> juega$/.exec(res.message.rawText);
     var roomName = res.message.room;
     var usersNumber = getMaxUsersNumber(roomName);
@@ -128,7 +128,7 @@ module.exports = function (robot) {
     }
   });
 
-  robot.hear(/@(.+) no juega$/, function (res) {
+  robot.hear(/@(.+) no (juega|va)$/, function (res) {
     var match = /\<@(.+)\> no juega$/.exec(res.message.rawText);
     var user = res.message.user;
     var roomName = res.message.room;
