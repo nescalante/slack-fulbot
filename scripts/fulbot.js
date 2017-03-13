@@ -90,7 +90,7 @@ module.exports = function fulbot(robot) {
 
         if (list.length < usersNumber) {
           const pendingUsers = usersNumber - list.length;
-          replyMessage += `, falta${pendingUsers > 1 ? 's' : ''} ${pendingUsers}`;
+          replyMessage += `, falta${pendingUsers > 1 ? 'n' : ''} ${pendingUsers}`;
         }
 
         if (usersNumber && list.length !== usersNumber) {
