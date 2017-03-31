@@ -15,7 +15,7 @@
     "hubot-heroku-keepalive": "^1.0.0",
     "hubot-redis-brain": "^0.0.3",
     "hubot-scripts": "^2.16.2",
-    "hubot-slack": "^3.3.0"
+    "hubot-slack": "^4.3.4"
   },
   "engines": {
     "node": "6.x"
