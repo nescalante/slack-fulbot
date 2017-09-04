@@ -64,7 +64,7 @@ module.exports = function fulbot(robot) {
     }
   });
 
-  robot.respond(/^help$/, (res) => {
+  robot.hear(/(^help$)/i, (res) => {
     const roomName = res.message.room;
     showHelp(roomName);
   });
