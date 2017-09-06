@@ -230,6 +230,8 @@ module.exports = function fulbot(robot) {
         robot.messageRoom(roomName, showTeam('*Equipo 1*', teamOne));
         robot.messageRoom(roomName, '\n\n');
         robot.messageRoom(roomName, showTeam('*Equipo 2*', teamTwo));
+        robot.messageRoom(roomName, '\n\n');
+        robot.messageRoom(roomName, `<https://nescalante.github.io/fulbito/?id${Date.now()}${newList.map(item => `&${item.name}`).join('')}|Link a equipos>`);
       } else {
         robot.messageRoom(roomName, `No hay suficientes jugadores anotados. Faltan ${usersNumber - list.length}`);
       }
