@@ -49,6 +49,8 @@ module.exports = function fulbot(robot) {
       const userId = match[1];
 
       removeUser(roomName, userId, true);
+
+      return;
     }
 
     const noUserMatch = /@(\S+) no (juega|va)$/.exec(res.message.text);
@@ -69,6 +71,8 @@ module.exports = function fulbot(robot) {
       const user = { id: userId };
 
       addUser(roomName, user, true);
+
+      return;
     }
 
     const noUserMatch = /@(\S+) (juega|va)$/.exec(res.message.text);
