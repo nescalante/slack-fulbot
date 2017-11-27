@@ -27,25 +27,6 @@ module.exports = function fulbot(robot) {
     buildRandomTeams(roomName);
   });
 
-  robot.hear(/^(juego|voy|\+1)$/i, (res) => {
-    const roomName = res.message.room;
-    const user = res.message.user;
-
-    addUser(roomName, user);
-  });
-
-  robot.hear(/@(.+) (juega|va)$/, (res) => {
-    const roomName = res.message.room;
-    const match = /<@(.+)> (juega|va)$/.exec(res.message.rawText);
-
-    if (match) {
-      const userId = match[1];
-      const user = { id: userId };
-
-      addUser(roomName, user, true);
-    }
-  });
-
   robot.hear(/^(me bajo|-1|no juego|no voy)$/i, (res) => {
     const roomName = res.message.room;
     const user = res.message.user;
@@ -53,19 +34,56 @@ module.exports = function fulbot(robot) {
     removeUser(roomName, user.id);
   });
 
-  robot.hear(/@(.+) no (juega|va)$/, (res) => {
+  robot.hear(/^(juego|voy|\+1)$/i, (res) => {
     const roomName = res.message.room;
-    const match = /<@(.+)> no (juega|va)$/.exec(res.message.rawText);
+    const user = res.message.user;
+
+    addUser(roomName, user);
+  });
+
+  robot.hear(/@(\S+) no (juega|va)$/, (res) => {
+    const roomName = res.message.room;
+    const match = /<@(\S+)> no (juega|va)$/.exec(res.message.rawText);
 
     if (match) {
       const userId = match[1];
 
       removeUser(roomName, userId, true);
     }
+
+    const noUserMatch = /@(\S+) no (juega|va)$/.exec(res.message.text);
+
+    if (noUserMatch) {
+      const userName = noUserMatch[1];
+
+      removeUser(roomName, userName, true);
+    }
+  });
+
+  robot.hear(/@(\S+) (juega|va)$/, (res) => {
+    const roomName = res.message.room;
+    const match = /<@(\S+)> (juega|va)$/.exec(res.message.rawText);
+
+    if (match) {
+      const userId = match[1];
+      const user = { id: userId };
+
+      addUser(roomName, user, true);
+    }
+
+    const noUserMatch = /@(\S+) (juega|va)$/.exec(res.message.text);
+
+    if (noUserMatch) {
+      const userName = noUserMatch[1];
+      const user = { id: userName, name: userName };
+
+      addUser(roomName, user, true);
+    }
   });
 
   robot.hear(/(^help$)/i, (res) => {
     const roomName = res.message.room;
+
     showHelp(roomName);
   });
 
@@ -83,9 +101,9 @@ module.exports = function fulbot(robot) {
       if (list.length !== prevList) {
         let replyMessage;
         if (usersNumber && list.length > usersNumber) {
-          replyMessage = `anotado de suplente <@${user.id}>`;
+          replyMessage = `anotado de suplente ${userToString(user)}`;
         } else {
-          replyMessage = `anotado <@${user.id}>`;
+          replyMessage = `anotado ${userToString(user)}`;
         }
 
         if (list.length < usersNumber) {
@@ -99,10 +117,18 @@ module.exports = function fulbot(robot) {
           showUsers(roomName);
         }
       } else {
-        const replyMessage = `${isExternal ? 'ya estaba anotado' : 'ya estabas anotado,'} <@${user.id}>`;
+        const replyMessage = `${isExternal ? 'ya estaba anotado' : 'ya estabas anotado,'} ${userToString(user)}`;
         robot.messageRoom(roomName, replyMessage);
       }
     }
+  }
+
+  function userToString(user) {
+    if (user.id === user.name) {
+      return user.name;
+    }
+
+    return `<@${user.id}>`;
   }
 
   function removeUser(roomName, userId, isExternal) {
@@ -113,6 +139,11 @@ module.exports = function fulbot(robot) {
       const isConfirmed = !!getMatch(roomName)
         .find((u, ix) => ix < usersNumber && u.id === userId);
       const initialLength = list.length;
+      const user = list.find(i => i.id === userId);
+
+      if (!user) {
+        return;
+      }
 
       list = list.filter(i => i.id !== userId);
 
@@ -121,18 +152,18 @@ module.exports = function fulbot(robot) {
       }
 
       if (list.length !== prevList) {
-        let replyMessage = `removido <@${userId}>`;
+        let replyMessage = `removido ${userToString(user)}`;
 
         if (list.length < usersNumber) {
           const pendingUsers = usersNumber - list.length;
           replyMessage += `, ahora falta${pendingUsers > 1 ? 'n' : ''} ${pendingUsers}`;
         } else if (isConfirmed) {
-          replyMessage += `, entra <@${list[usersNumber - 1].id}>`;
+          replyMessage += `, entra ${userToString(list[usersNumber - 1])}`;
         }
 
         robot.messageRoom(roomName, replyMessage);
       } else {
-        const replyMessage = `${isExternal ? 'no estaba anotado ' : 'no estabas anotado,'} <@${userId}>`;
+        const replyMessage = `${isExternal ? 'no estaba anotado ' : 'no estabas anotado,'} ${userToString(user)}`;
 
         robot.messageRoom(roomName, replyMessage);
       }
@@ -247,7 +278,7 @@ module.exports = function fulbot(robot) {
   }
 
   function listPlayers(players) {
-    return players.map(i => `- <@${i.id}>`).join('\n');
+    return players.map(i => `- ${userToString(i)}`).join('\n');
   }
 
   function getWeekNumber(d) {
