@@ -31,7 +31,7 @@ module.exports = function fulbot(robot) {
     const roomName = res.message.room;
     const user = res.message.user;
 
-    removeUser(roomName, user.id);
+    removeUser(roomName, user);
   });
 
   robot.hear(/^(juego|voy|\+1)$/i, (res) => {
@@ -48,7 +48,7 @@ module.exports = function fulbot(robot) {
     if (match) {
       const userId = match[1];
 
-      removeUser(roomName, userId, true);
+      removeUser(roomName, { id: userId }, true);
 
       return;
     }
@@ -58,7 +58,7 @@ module.exports = function fulbot(robot) {
     if (noUserMatch) {
       const userName = noUserMatch[1];
 
-      removeUser(roomName, userName, true);
+      removeUser(roomName, { id: userName, name: userName }, true);
     }
   });
 
@@ -135,19 +135,15 @@ module.exports = function fulbot(robot) {
     return `<@${user.id}>`;
   }
 
-  function removeUser(roomName, userId, isExternal) {
+  function removeUser(roomName, user, isExternal) {
     if (isValidRoom(roomName)) {
+      const userId = user.id;
       const usersNumber = getMaxUsersNumber(roomName);
       let list = getMatch(roomName);
       const prevList = list.length;
       const isConfirmed = !!getMatch(roomName)
         .find((u, ix) => ix < usersNumber && u.id === userId);
       const initialLength = list.length;
-      const user = list.find(i => i.id === userId);
-
-      if (!user) {
-        return;
-      }
 
       list = list.filter(i => i.id !== userId);
 
@@ -167,7 +163,7 @@ module.exports = function fulbot(robot) {
 
         robot.messageRoom(roomName, replyMessage);
       } else {
-        const replyMessage = `${isExternal ? 'no estaba anotado ' : 'no estabas anotado,'} ${userToString(user)}`;
+        const replyMessage = `${isExternal ? 'no estaba anotado' : 'no estabas anotado,'} ${userToString(user)}`;
 
         robot.messageRoom(roomName, replyMessage);
       }
