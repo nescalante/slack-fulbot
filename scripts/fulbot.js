@@ -3,6 +3,11 @@
 const fs = require('fs');
 const path = require('path');
 
+const helpPath = path.join(__dirname, '../assets/help.md');
+const rulesPath = path.join(__dirname, '../assets/rules.md');
+const help = fs.readFileSync(helpPath).toString();
+const rules = fs.readFileSync(rulesPath).toString();
+
 let MAX_USERS_NUMBER;
 let ALLOW_DELETE;
 
@@ -41,7 +46,8 @@ module.exports = function fulbot(robot) {
 
   robot.hear(/(^reglas$)/i, (res) => {
     const roomName = res.message.room;
-    showRules(roomName);
+
+    robot.messageRoom(roomName, rules);
   });
 
   robot.hear(/(^equipos$)/i, (res) => {
@@ -110,7 +116,11 @@ module.exports = function fulbot(robot) {
   robot.hear(/(^help$)/i, (res) => {
     const roomName = res.message.room;
 
-    showHelp(roomName);
+    robot.messageRoom(roomName, help);
+  });
+
+  robot.respond(/(^help$)/i, (res) => {
+    res.reply(help);
   });
 
   function addUser(roomName, user, isExternal) {
@@ -254,18 +264,6 @@ module.exports = function fulbot(robot) {
     } else {
       robot.messageRoom(roomName, 'no hay jugadores anotados');
     }
-  }
-
-  function showHelp(roomName) {
-    const rulesPath = path.join(__dirname, '../assets/help.md');
-    const rules = fs.readFileSync(rulesPath);
-    robot.messageRoom(roomName, rules.toString());
-  }
-
-  function showRules(roomName) {
-    const rulesPath = path.join(__dirname, '../assets/rules.md');
-    const rules = fs.readFileSync(rulesPath);
-    robot.messageRoom(roomName, rules.toString());
   }
 
   function buildRandomTeams(roomName) {
