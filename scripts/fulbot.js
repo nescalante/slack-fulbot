@@ -4,6 +4,7 @@ const fs = require('fs');
 const path = require('path');
 
 let MAX_USERS_NUMBER;
+let ALLOW_DELETE;
 
 if (process.env.MAX_USERS_NUMBER) {
   MAX_USERS_NUMBER = JSON.parse(process.env.MAX_USERS_NUMBER);
@@ -11,10 +12,31 @@ if (process.env.MAX_USERS_NUMBER) {
   MAX_USERS_NUMBER = 0;
 }
 
+if (process.env.ALLOW_DELETE) {
+  ALLOW_DELETE = JSON.parse(process.env.ALLOW_DELETE);
+} else {
+  ALLOW_DELETE = false;
+}
+
 module.exports = function fulbot(robot) {
   robot.hear(/(^lista$|^quienes (juegan|van){1}$)/i, (res) => {
     const roomName = res.message.room;
     showUsers(roomName);
+  });
+
+  robot.hear(/(^borrar$)/i, (res) => {
+    const roomName = res.message.room;
+    const allowDelete = getAllowDelete(roomName);
+
+    if (allowDelete) {
+      const list = getMatch(roomName);
+
+      list.forEach((user) => {
+        removeUser(roomName, user, false, true);
+      });
+
+      showUsers(roomName);
+    }
   });
 
   robot.hear(/(^reglas$)/i, (res) => {
@@ -135,7 +157,7 @@ module.exports = function fulbot(robot) {
     return `<@${user.id}>`;
   }
 
-  function removeUser(roomName, user, isExternal) {
+  function removeUser(roomName, user, isExternal, silent) {
     if (isValidRoom(roomName)) {
       const userId = user.id;
       const usersNumber = getMaxUsersNumber(roomName);
@@ -149,6 +171,10 @@ module.exports = function fulbot(robot) {
 
       if (list.length !== initialLength) {
         updateMatch(roomName, list);
+      }
+
+      if (silent) {
+        return;
       }
 
       if (list.length !== prevList) {
@@ -299,5 +325,14 @@ function getMaxUsersNumber(roomName) {
   if (typeof MAX_USERS_NUMBER === 'object') {
     return MAX_USERS_NUMBER[roomName] || 0;
   }
+
   return MAX_USERS_NUMBER;
+}
+
+function getAllowDelete(roomName) {
+  if (typeof ALLOW_DELETE === 'object') {
+    return ALLOW_DELETE[roomName] || false;
+  }
+
+  return ALLOW_DELETE;
 }
