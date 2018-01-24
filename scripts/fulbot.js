@@ -257,13 +257,13 @@ module.exports = function fulbot(robot) {
   }
 
   function showHelp(roomName) {
-    const rulesPath = path.join(__dirname, '../assets/help.txt');
+    const rulesPath = path.join(__dirname, '../assets/help.md');
     const rules = fs.readFileSync(rulesPath);
     robot.messageRoom(roomName, rules.toString());
   }
 
   function showRules(roomName) {
-    const rulesPath = path.join(__dirname, '../assets/rules.txt');
+    const rulesPath = path.join(__dirname, '../assets/rules.md');
     const rules = fs.readFileSync(rulesPath);
     robot.messageRoom(roomName, rules.toString());
   }
