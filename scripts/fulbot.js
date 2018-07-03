@@ -3,7 +3,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const WebClient = require('@slack/client');
+const { WebClient } = require('@slack/client');
 
 const helpPath = path.join(__dirname, '../assets/help.md');
 const rulesPath = path.join(__dirname, '../assets/rules.md');
