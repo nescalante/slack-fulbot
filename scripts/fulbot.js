@@ -3,6 +3,8 @@
 const fs = require('fs');
 const path = require('path');
 
+const WebClient = require('@slack/client');
+
 const helpPath = path.join(__dirname, '../assets/help.md');
 const rulesPath = path.join(__dirname, '../assets/rules.md');
 const help = fs.readFileSync(helpPath).toString();
@@ -23,60 +25,68 @@ if (process.env.ALLOW_DELETE) {
   ALLOW_DELETE = false;
 }
 
+const web = new WebClient(process.env.HUBOT_SLACK_TOKEN);
+
+const channels = [];
+
+web.channels.list()
+  // eslint-disable-next-line no-return-assign
+  .then(res => res.channels.forEach(channel => channels[channel.id] = channel.name));
+
 module.exports = function fulbot(robot) {
   robot.hear(/(^lista$|^quienes (juegan|van){1}$)/i, (res) => {
-    const roomName = res.message.room;
-    showUsers(roomName);
+    const roomId = res.message.room;
+    showUsers(roomId);
   });
 
   robot.hear(/(^borrar$)/i, (res) => {
-    const roomName = res.message.room;
-    const allowDelete = getAllowDelete(roomName);
+    const roomId = res.message.room;
+    const allowDelete = getAllowDelete(roomId);
 
     if (allowDelete) {
-      const list = getMatch(roomName);
+      const list = getMatch(roomId);
 
       list.forEach((user) => {
-        removeUser(roomName, user, false, true);
+        removeUser(roomId, user, false, true);
       });
 
-      showUsers(roomName);
+      showUsers(roomId);
     }
   });
 
   robot.hear(/(^reglas$)/i, (res) => {
-    const roomName = res.message.room;
+    const roomId = res.message.room;
 
-    robot.messageRoom(roomName, rules);
+    robot.messageRoom(roomId, rules);
   });
 
   robot.hear(/(^equipos$)/i, (res) => {
-    const roomName = res.message.room;
-    buildRandomTeams(roomName);
+    const roomId = res.message.room;
+    buildRandomTeams(roomId);
   });
 
   robot.hear(/^(me bajo|-1|no juego|no voy)$/i, (res) => {
-    const roomName = res.message.room;
+    const roomId = res.message.room;
     const { user } = res.message;
 
-    removeUser(roomName, user);
+    removeUser(roomId, user);
   });
 
   robot.hear(/^(juego|voy|\+1)$/i, (res) => {
-    const roomName = res.message.room;
+    const roomId = res.message.room;
     const { user } = res.message;
 
-    addUser(roomName, user);
+    addUser(roomId, user);
   });
 
   robot.hear(/@(\S+) no (juega|va)$/, (res) => {
-    const roomName = res.message.room;
+    const roomId = res.message.room;
     const match = /<@(\S+)> no (juega|va)$/.exec(res.message.rawText);
 
     if (match) {
       const userId = match[1];
 
-      removeUser(roomName, { id: userId }, true);
+      removeUser(roomId, { id: userId }, true);
 
       return;
     }
@@ -86,19 +96,19 @@ module.exports = function fulbot(robot) {
     if (noUserMatch) {
       const userName = noUserMatch[1];
 
-      removeUser(roomName, { id: userName, name: userName }, true);
+      removeUser(roomId, { id: userName, name: userName }, true);
     }
   });
 
   robot.hear(/@(\S+) (juega|va)$/, (res) => {
-    const roomName = res.message.room;
+    const roomId = res.message.room;
     const match = /<@(\S+)> (juega|va)$/.exec(res.message.rawText);
 
     if (match) {
       const userId = match[1];
       const user = { id: userId };
 
-      addUser(roomName, user, true);
+      addUser(roomId, user, true);
 
       return;
     }
@@ -109,29 +119,29 @@ module.exports = function fulbot(robot) {
       const userName = noUserMatch[1];
       const user = { id: userName, name: userName };
 
-      addUser(roomName, user, true);
+      addUser(roomId, user, true);
     }
   });
 
   robot.hear(/(^help$)/i, (res) => {
-    const roomName = res.message.room;
+    const roomId = res.message.room;
 
-    robot.messageRoom(roomName, help);
+    robot.messageRoom(roomId, help);
   });
 
   robot.respond(/(^help$)/i, (res) => {
     res.reply(help);
   });
 
-  function addUser(roomName, user, isExternal) {
-    if (isValidRoom(roomName)) {
-      const usersNumber = getMaxUsersNumber(roomName);
-      const list = getMatch(roomName);
+  function addUser(roomId, user, isExternal) {
+    if (isValidRoom(roomId)) {
+      const usersNumber = getMaxUsersNumber(roomId);
+      const list = getMatch(roomId);
       const prevList = list.length;
 
       if (!list.some(i => i.id === user.id)) {
         list.push({ id: user.id, name: user.name });
-        updateMatch(roomName, list);
+        updateMatch(roomId, list);
       }
 
       if (list.length !== prevList) {
@@ -148,13 +158,13 @@ module.exports = function fulbot(robot) {
         }
 
         if (usersNumber && list.length !== usersNumber) {
-          robot.messageRoom(roomName, replyMessage);
+          robot.messageRoom(roomId, replyMessage);
         } else {
-          showUsers(roomName);
+          showUsers(roomId);
         }
       } else {
         const replyMessage = `${isExternal ? 'ya estaba anotado' : 'ya estabas anotado,'} ${userToString(user)}`;
-        robot.messageRoom(roomName, replyMessage);
+        robot.messageRoom(roomId, replyMessage);
       }
     }
   }
@@ -167,20 +177,20 @@ module.exports = function fulbot(robot) {
     return `<@${user.id}>`;
   }
 
-  function removeUser(roomName, user, isExternal, silent) {
-    if (isValidRoom(roomName)) {
+  function removeUser(roomId, user, isExternal, silent) {
+    if (isValidRoom(channels[roomId])) {
       const userId = user.id;
-      const usersNumber = getMaxUsersNumber(roomName);
-      let list = getMatch(roomName);
+      const usersNumber = getMaxUsersNumber(roomId);
+      let list = getMatch(roomId);
       const prevList = list.length;
-      const isConfirmed = !!getMatch(roomName)
+      const isConfirmed = !!getMatch(roomId)
         .find((u, ix) => ix < usersNumber && u.id === userId);
       const initialLength = list.length;
 
       list = list.filter(i => i.id !== userId);
 
       if (list.length !== initialLength) {
-        updateMatch(roomName, list);
+        updateMatch(roomId, list);
       }
 
       if (silent) {
@@ -197,26 +207,26 @@ module.exports = function fulbot(robot) {
           replyMessage += `, entra ${userToString(list[usersNumber - 1])}`;
         }
 
-        robot.messageRoom(roomName, replyMessage);
+        robot.messageRoom(roomId, replyMessage);
       } else {
         const replyMessage = `${isExternal ? 'no estaba anotado' : 'no estabas anotado,'} ${userToString(user)}`;
 
-        robot.messageRoom(roomName, replyMessage);
+        robot.messageRoom(roomId, replyMessage);
       }
     }
   }
 
-  function getMatch(roomName) {
-    const matchKey = getMatchKey(roomName);
+  function getMatch(roomId) {
+    const matchKey = getMatchKey(roomId);
 
     return robot.brain.get(matchKey) || [];
   }
 
-  function getMatchKey(roomName) {
+  function getMatchKey(roomId) {
     const now = Date.now();
     const year = new Date().getFullYear();
 
-    return `${roomName}_${year}_${getWeekNumber(now)}_match`;
+    return `${channels[roomId]}_${year}_${getWeekNumber(now)}_match`;
   }
 
   function isValidRoom(roomName) {
@@ -227,15 +237,15 @@ module.exports = function fulbot(robot) {
     return true;
   }
 
-  function updateMatch(roomName, list) {
-    const matchKey = getMatchKey(roomName);
+  function updateMatch(roomId, list) {
+    const matchKey = getMatchKey(roomId);
     robot.brain.set(matchKey, list);
   }
 
-  function showUsers(roomName) {
-    const list = getMatch(roomName);
+  function showUsers(roomId) {
+    const list = getMatch(roomId);
     const totalUsers = list.length;
-    const usersNumber = getMaxUsersNumber(roomName);
+    const usersNumber = getMaxUsersNumber(roomId);
     const usersToComplete = usersNumber - totalUsers;
 
     if (totalUsers) {
@@ -260,15 +270,15 @@ module.exports = function fulbot(robot) {
         }
       }
 
-      robot.messageRoom(roomName, message);
+      robot.messageRoom(roomId, message);
     } else {
-      robot.messageRoom(roomName, 'no hay jugadores anotados');
+      robot.messageRoom(roomId, 'no hay jugadores anotados');
     }
   }
 
-  function buildRandomTeams(roomName) {
-    const list = getMatch(roomName).slice(0);
-    const usersNumber = getMaxUsersNumber(roomName);
+  function buildRandomTeams(roomId) {
+    const list = getMatch(roomId).slice(0);
+    const usersNumber = getMaxUsersNumber(roomId);
 
     if (list.length) {
       if (list.length >= usersNumber) {
@@ -283,16 +293,16 @@ module.exports = function fulbot(robot) {
         const teamOne = newList.slice(0, usersNumber / 2);
         const teamTwo = newList.slice(usersNumber / 2, usersNumber);
 
-        robot.messageRoom(roomName, showTeam('*Equipo 1*', teamOne));
-        robot.messageRoom(roomName, '\n\n');
-        robot.messageRoom(roomName, showTeam('*Equipo 2*', teamTwo));
-        robot.messageRoom(roomName, '\n\n');
-        robot.messageRoom(roomName, `https://nescalante.github.io/fulbito/?id=${Date.now()}${newList.map(item => `&player=${(item.name || item.id).replace(/\./g, '')}`).join('')}`);
+        robot.messageRoom(roomId, showTeam('*Equipo 1*', teamOne));
+        robot.messageRoom(roomId, '\n\n');
+        robot.messageRoom(roomId, showTeam('*Equipo 2*', teamTwo));
+        robot.messageRoom(roomId, '\n\n');
+        robot.messageRoom(roomId, `https://nescalante.github.io/fulbito/?id=${Date.now()}${newList.map(item => `&player=${(item.name || item.id).replace(/\./g, '')}`).join('')}`);
       } else {
-        robot.messageRoom(roomName, `No hay suficientes jugadores anotados. Faltan ${usersNumber - list.length}`);
+        robot.messageRoom(roomId, `No hay suficientes jugadores anotados. Faltan ${usersNumber - list.length}`);
       }
     } else {
-      robot.messageRoom(roomName, `No hay suficientes jugadores anotados. Faltan ${usersNumber - list.length}`);
+      robot.messageRoom(roomId, `No hay suficientes jugadores anotados. Faltan ${usersNumber - list.length}`);
     }
   }
 
@@ -320,17 +330,17 @@ module.exports = function fulbot(robot) {
   }
 };
 
-function getMaxUsersNumber(roomName) {
+function getMaxUsersNumber(roomId) {
   if (typeof MAX_USERS_NUMBER === 'object') {
-    return MAX_USERS_NUMBER[roomName] || 0;
+    return MAX_USERS_NUMBER[channels[roomId]] || 0;
   }
 
   return MAX_USERS_NUMBER;
 }
 
-function getAllowDelete(roomName) {
+function getAllowDelete(roomId) {
   if (typeof ALLOW_DELETE === 'object') {
-    return ALLOW_DELETE[roomName] || false;
+    return ALLOW_DELETE[channels[roomId]] || false;
   }
 
   return ALLOW_DELETE;

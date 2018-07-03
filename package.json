@@ -11,6 +11,7 @@
     "lint:fix": "eslint scripts --fix"
   },
   "dependencies": {
+    "@slack/client": "^4.3.1",
     "hubot": "^2.19.0",
     "hubot-heroku-keepalive": "^1.0.3",
     "hubot-redis-brain": "^0.0.4",
