@@ -57,14 +57,14 @@ module.exports = function fulbot(robot) {
 
   robot.hear(/^(me bajo|-1|no juego|no voy)$/i, (res) => {
     const roomName = res.message.room;
-    const user = res.message.user;
+    const { user } = res.message;
 
     removeUser(roomName, user);
   });
 
   robot.hear(/^(juego|voy|\+1)$/i, (res) => {
     const roomName = res.message.room;
-    const user = res.message.user;
+    const { user } = res.message;
 
     addUser(roomName, user);
   });
@@ -276,6 +276,7 @@ module.exports = function fulbot(robot) {
         const tempList = list.slice(0, usersNumber);
         for (let i = 0; i < usersNumber; i += 1) {
           const pos = Math.floor((Math.random() * usersNumber) - i);
+          // eslint-disable-next-line
           newList[i] = tempList.splice(pos, 1)[0];
         }
 
