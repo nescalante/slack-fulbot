@@ -46,13 +46,13 @@ async function getChannelName(channel) {
 }
 
 module.exports = function fulbot(robot) {
-  robot.hear(/(^lista$|^quienes (juegan|van){1}$)/i, (res) => {
+  robot.hear(/(^lista$|^quienes (juegan|van){1}$)/i, async (res) => {
     const roomId = await getChannelName(res.message.room);
 
     showUsers(roomId);
   });
 
-  robot.hear(/(^borrar$)/i, (res) => {
+  robot.hear(/(^borrar$)/i, async (res) => {
     const roomId = await getChannelName(res.message.room);
     const allowDelete = getAllowDelete(roomId);
 
@@ -67,33 +67,33 @@ module.exports = function fulbot(robot) {
     }
   });
 
-  robot.hear(/(^reglas$)/i, (res) => {
+  robot.hear(/(^reglas$)/i, async (res) => {
     const roomId = await getChannelName(res.message.room);
 
     robot.messageRoom(roomId, rules);
   });
 
-  robot.hear(/(^equipos$)/i, (res) => {
+  robot.hear(/(^equipos$)/i, async (res) => {
     const roomId = await getChannelName(res.message.room);
 
     buildRandomTeams(roomId);
   });
 
-  robot.hear(/^(me bajo|-1|no juego|no voy)$/i, (res) => {
+  robot.hear(/^(me bajo|-1|no juego|no voy)$/i, async (res) => {
     const roomId = await getChannelName(res.message.room);
     const { user } = res.message;
 
     removeUser(roomId, user);
   });
 
-  robot.hear(/^(juego|voy|\+1)$/i, (res) => {
+  robot.hear(/^(juego|voy|\+1)$/i, async (res) => {
     const roomId = await getChannelName(res.message.room);
     const { user } = res.message;
 
     addUser(roomId, user);
   });
 
-  robot.hear(/@(\S+) no (juega|va)$/, (res) => {
+  robot.hear(/@(\S+) no (juega|va)$/, async (res) => {
     const roomId = await getChannelName(res.message.room);
     const match = /<@(\S+)> no (juega|va)$/.exec(res.message.rawText);
 
@@ -114,7 +114,7 @@ module.exports = function fulbot(robot) {
     }
   });
 
-  robot.hear(/@(\S+) (juega|va)$/, (res) => {
+  robot.hear(/@(\S+) (juega|va)$/, async (res) => {
     const roomId = await getChannelName(res.message.room);
     const match = /<@(\S+)> (juega|va)$/.exec(res.message.rawText);
 
@@ -137,7 +137,7 @@ module.exports = function fulbot(robot) {
     }
   });
 
-  robot.hear(/(^help$)/i, (res) => {
+  robot.hear(/(^help$)/i, async (res) => {
     const roomId = await getChannelName(res.message.room);
 
     robot.messageRoom(roomId, help);
