@@ -34,7 +34,7 @@ async function getChannelName(channel) {
     return channels[channel];
   }
 
-  const res = await web.conversations.info({ channel: token });
+  const res = await web.conversations.info({ channel });
 
   if (res.ok) {
     channels[channel] = res.channel.name;
