@@ -1,50 +1,53 @@
-const db = require('./db');
-const utils = require('./utils');
+const repository = require('./repository');
+const messages = require('./messages');
 
-module.exports = {
-  getUsers,
-  addUser,
-  removeUser
-};
+module.exports = function commands(robot) {
+  return {
+    getUsers,
+    addUser,
+    removeUser
+  };
 
-async function getUsers({
-  room,
-  year = utils.getYear(),
-  week = utils.getWeekNumber()
-}) {
-  const users = await db
-    .select('*')
-    .from('users')
-    .where({
-      room_id: room,
-      year,
-      week
+  async function getUsers(res) {
+    const { room } = res.message;
+    const users = await repository.getUsers({ room });
+    const limit = 12;
+    const message = messages.getUsersWithLimit(users, limit);
+
+    robot.messageRoom(room, message);
+  }
+
+  async function addUser(res) {
+    const { room } = res.message;
+    const { id: userId } = res.message.user;
+    const exists = await repository.addUser({
+      userId,
+      room
+    });
+    const users = await repository.getUsers({
+      room
+    });
+    const limit = 12;
+    const message = messages.addUser(users, userId, exists, limit);
+
+    robot.messageRoom(room, message);
+  }
+
+  async function removeUser(res) {
+    const { room } = res.message;
+    const { id: userId } = res.message.user;
+
+    await repository.removeUser({
+      userId,
+      room
     });
 
-  return users.map((user) => ({
-    userId: user.user_id,
-    room: user.room_id,
-    week: user.week,
-    year: user.year
-  }));
-}
+    const users = await repository.getUsers({
+      room
+    });
+    const limit = 12;
+    const message = messages.removeUser(users, userId, limit);
 
-async function addUser({
-  user,
-  room,
-  year = utils.getYear(),
-  week = utils.getWeekNumber()
-}) {
-  await db.insert({ user_id: user, room_id: room, year, week }).into('users');
-}
-
-async function removeUser({
-  user,
-  room,
-  year = utils.getYear(),
-  week = utils.getWeekNumber()
-}) {
-  await db('users')
-    .where({ user_id: user, room_id: room, year, week })
-    .del();
-}
+    robot.messageRoom(res.message.room, message);
+  }
+};

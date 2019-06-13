@@ -7,8 +7,8 @@
   "scripts": {
     "start": "hubot -a slack --name julito",
     "test": "npm run lint",
-    "lint": "eslint scripts",
-    "lint:fix": "eslint scripts --fix"
+    "lint": "eslint scripts src",
+    "lint:fix": "eslint scripts src --fix"
   },
   "dependencies": {
     "hubot": "^3.3.2",
@@ -23,7 +23,9 @@
     "chai": "^4.2.0",
     "eslint": "^5.16.0",
     "eslint-config-airbnb-base": "^13.1.0",
+    "eslint-config-prettier": "^4.3.0",
     "eslint-plugin-import": "^2.17.3",
+    "eslint-plugin-prettier": "^3.1.0",
     "mocha": "^5.2.0",
     "prettier": "^1.18.2"
   }

@@ -1,4 +1,4 @@
-extends: airbnb-base
+extends: ['airbnb-base', 'plugin:prettier/recommended']
 
 env:
   node: true
@@ -7,4 +7,4 @@ env:
 rules:
   no-use-before-define: off
   strict:
-  - 0
+    - 0
