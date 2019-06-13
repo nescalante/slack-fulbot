@@ -38,7 +38,7 @@ async function addUser({
   let exists;
 
   await db.transaction(async (transaction) => {
-    const users = await getUsers(room, year, week);
+    const users = await getUsers({ room, year, week });
     exists = users.some((user) => user.userId === userId);
 
     if (!exists) {
