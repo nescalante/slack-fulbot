@@ -1,5 +1,7 @@
 const serviceFactory = require('./service');
 
+console.log('fulbot starting');
+
 module.exports = function controller(robot) {
   const service = serviceFactory(robot);
 
