@@ -58,7 +58,7 @@ function addUser(users, userId, exists, limit) {
     return getUsersWithLimit(users, limit);
   }
 
-  return `'ya estabas anotado, <@${userId}>`;
+  return `ya estabas anotado, <@${userId}>`;
 }
 
 function removeUser(users, userId) {
@@ -66,5 +66,7 @@ function removeUser(users, userId) {
 }
 
 function listUsers(users) {
-  return users.map(({ userId }) => `- <@${userId}>`).join('\n');
+  return users
+    .map(({ userId, userName }) => `- ${userName ? userName : `<@${userId}>`}`)
+    .join('\n');
 }

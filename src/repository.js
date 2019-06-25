@@ -22,7 +22,8 @@ async function getUsers({
     });
 
   return users.map((user) => ({
-    userId: user.user_id,
+    userId: user.is_external ? null : user.user_id,
+    userName: user.is_external ? user.user_id : null,
     room: user.room_id,
     week: user.week,
     year: user.year
@@ -31,11 +32,16 @@ async function getUsers({
 
 async function addUser({
   userId,
+  userName,
   room,
   year = utils.getYear(),
   week = utils.getWeekNumber()
 }) {
   let exists;
+
+  if (!userName && !userId) {
+    throw new Error('Need to provide one of userId or userName');
+  }
 
   await db.transaction(async (transaction) => {
     const users = await getUsers({ room, year, week });
@@ -43,7 +49,13 @@ async function addUser({
 
     if (!exists) {
       await db
-        .insert({ user_id: userId, room_id: room, year, week })
+        .insert({
+          user_id: userId || userName,
+          room_id: room,
+          year,
+          week,
+          is_external: !!userName
+        })
         .into('users');
     }
 
@@ -55,11 +67,22 @@ async function addUser({
 
 async function removeUser({
   userId,
+  userName,
   room,
   year = utils.getYear(),
   week = utils.getWeekNumber()
 }) {
+  if (!userName && !userId) {
+    throw new Error('Need to provide one of userId or userName');
+  }
+
   await db('users')
-    .where({ user_id: userId, room_id: room, year, week })
+    .where({
+      user_id: userId || userName,
+      room_id: room,
+      year,
+      week,
+      is_external: !!userName
+    })
     .del();
 }
