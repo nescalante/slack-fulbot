@@ -125,8 +125,6 @@ module.exports = function commands(robot) {
 
       const message = `removido ${userName}`;
       robot.messageRoom(room, message);
-
-      return;
     }
   }
 };

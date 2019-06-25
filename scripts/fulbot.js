@@ -1,5 +1,6 @@
 'use strict';
 
+// eslint-disable-next-line no-console
 console.log('fulbot starting');
 
 const serviceFactory = require('../src/service');

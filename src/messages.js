@@ -67,6 +67,6 @@ function removeUser(users, userId) {
 
 function listUsers(users) {
   return users
-    .map(({ userId, userName }) => `- ${userName ? userName : `<@${userId}>`}`)
+    .map(({ userId, userName }) => `- ${userName || `<@${userId}>`}`)
     .join('\n');
 }
