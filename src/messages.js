@@ -1,7 +1,8 @@
 module.exports = {
   getUsersWithLimit,
   addUser,
-  removeUser
+  removeUser,
+  listUsers
 };
 
 function getUsersWithLimit(users, limit) {

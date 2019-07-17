@@ -3,6 +3,7 @@ const messages = require('./messages');
 
 module.exports = function commands(robot) {
   return {
+    buildRandomTeams,
     getUsers,
     addUser,
     addAnotherUser,
@@ -33,6 +34,53 @@ module.exports = function commands(robot) {
     const message = messages.addUser(users, userId, exists, limit);
 
     robot.messageRoom(room, message);
+  }
+
+  async function buildRandomTeams(res) {
+    const { room } = res.message;
+    const users = await repository.getUsers({
+      room
+    });
+    const limit = 12;
+
+    if (users.length) {
+      if (users.length >= limit) {
+        const newUsers = [];
+        const tempUsers = users.slice(0, limit);
+        for (let i = 0; i < limit; i += 1) {
+          const pos = Math.floor(Math.random() * limit - i);
+          // eslint-disable-next-line
+          newUsers[i] = tempUsers.splice(pos, 1)[0];
+        }
+
+        const teamOne = newUsers.slice(0, limit / 2);
+        const teamTwo = newUsers.slice(limit / 2, limit);
+
+        robot.messageRoom(room, showTeam('*Equipo 1*', teamOne));
+        robot.messageRoom(room, '\n\n');
+        robot.messageRoom(room, showTeam('*Equipo 2*', teamTwo));
+        robot.messageRoom(room, '\n\n');
+      } else {
+        robot.messageRoom(
+          room,
+          `No hay suficientes jugadores anotados. Faltan ${limit -
+            users.length}`
+        );
+      }
+    } else {
+      robot.messageRoom(
+        room,
+        `No hay suficientes jugadores anotados. Faltan ${limit - users.length}`
+      );
+    }
+  }
+
+  function showTeam(teamName, players) {
+    let message = `${teamName}:\n`;
+
+    message += messages.listUsers(players);
+
+    return message;
   }
 
   async function addAnotherUser(res) {

@@ -8,6 +8,7 @@ const serviceFactory = require('../src/service');
 module.exports = function main(robot) {
   const service = serviceFactory(robot);
 
+  robot.hear(/(^equipos$)/i, service.buildRandomTeams);
   robot.hear(/(^lista$|^quienes (juegan|van){1}$)/i, service.getUsers);
   robot.hear(/^(juego|voy|\+1)$/i, service.addUser);
   robot.hear(/@(\S+) (juega|va)$/, service.addAnotherUser);
