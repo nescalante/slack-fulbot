@@ -14,7 +14,7 @@ module.exports = function commands(robot) {
   async function getUsers(res) {
     const { room } = res.message;
     const users = await repository.getUsers({ room });
-    const limit = 12;
+    const limit = 10;
     const message = messages.getUsersWithLimit(users, limit);
 
     robot.messageRoom(room, message);
@@ -30,7 +30,7 @@ module.exports = function commands(robot) {
     const users = await repository.getUsers({
       room
     });
-    const limit = 12;
+    const limit = 10;
     const message = messages.addUser(users, userId, exists, limit);
 
     robot.messageRoom(room, message);
@@ -41,7 +41,7 @@ module.exports = function commands(robot) {
     const users = await repository.getUsers({
       room
     });
-    const limit = 12;
+    const limit = 10;
 
     if (users.length) {
       if (users.length >= limit) {
@@ -57,9 +57,7 @@ module.exports = function commands(robot) {
         const teamTwo = newUsers.slice(limit / 2, limit);
 
         robot.messageRoom(room, showTeam('*Equipo 1*', teamOne));
-        robot.messageRoom(room, '\n\n');
         robot.messageRoom(room, showTeam('*Equipo 2*', teamTwo));
-        robot.messageRoom(room, '\n\n');
       } else {
         robot.messageRoom(
           room,
@@ -97,7 +95,7 @@ module.exports = function commands(robot) {
       const users = await repository.getUsers({
         room
       });
-      const limit = 12;
+      const limit = 10;
       const message = messages.addUser(users, userId, exists, limit);
 
       robot.messageRoom(room, message);
@@ -132,7 +130,7 @@ module.exports = function commands(robot) {
     const users = await repository.getUsers({
       room
     });
-    const limit = 12;
+    const limit = 10;
     const message = messages.removeUser(users, userId, limit);
 
     robot.messageRoom(room, message);
@@ -153,7 +151,7 @@ module.exports = function commands(robot) {
       const users = await repository.getUsers({
         room
       });
-      const limit = 12;
+      const limit = 10;
       const message = messages.removeUser(users, userId, limit);
 
       robot.messageRoom(room, message);
