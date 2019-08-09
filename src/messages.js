@@ -10,7 +10,7 @@ function getUsersWithLimit(users, limit) {
 
   if (users.length) {
     const main = users.slice(0, limit);
-    let message = `Anotados (${users.length}): \n`;
+    let message = `Anotad☀️s (${users.length}): \n`;
 
     message += listUsers(main);
 
@@ -33,7 +33,7 @@ function getUsersWithLimit(users, limit) {
     return message;
   }
 
-  return 'No hay jugadores anotados';
+  return 'No hay jugadores anotad☀️s';
 }
 
 function addUser(users, userId, exists, limit) {
@@ -41,9 +41,9 @@ function addUser(users, userId, exists, limit) {
     let replyMessage;
 
     if (users.length > limit) {
-      replyMessage = `anotado de suplente <@${userId}>`;
+      replyMessage = `anotad☀️ de suplente <@${userId}>`;
     } else {
-      replyMessage = `anotado <@${userId}>`;
+      replyMessage = `anotad☀️ <@${userId}>`;
     }
 
     if (users.length < limit) {
@@ -59,7 +59,7 @@ function addUser(users, userId, exists, limit) {
     return getUsersWithLimit(users, limit);
   }
 
-  return `ya estabas anotado, <@${userId}>`;
+  return `ya estabas anotad☀️, <@${userId}>`;
 }
 
 function removeUser(users, userId) {

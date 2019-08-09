@@ -61,14 +61,14 @@ module.exports = function commands(robot) {
       } else {
         robot.messageRoom(
           room,
-          `No hay suficientes jugadores anotados. Faltan ${limit -
+          `No hay suficientes jugadores anotad☀️s. Faltan ${limit -
             users.length}`
         );
       }
     } else {
       robot.messageRoom(
         room,
-        `No hay suficientes jugadores anotados. Faltan ${limit - users.length}`
+        `No hay suficientes jugadores anotad☀️s. Faltan ${limit - users.length}`
       );
     }
   }
@@ -113,7 +113,7 @@ module.exports = function commands(robot) {
         room
       });
 
-      const message = `anotado ${userName}`;
+      const message = `anotad☀️ ${userName}`;
       robot.messageRoom(room, message);
     }
   }
