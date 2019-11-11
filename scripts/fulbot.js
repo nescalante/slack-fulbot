@@ -14,4 +14,8 @@ module.exports = function main(robot) {
   robot.hear(/@(\S+) (juega|va)$/, service.addAnotherUser);
   robot.hear(/^(me bajo|-1|no juego|no voy)$/i, service.removeUser);
   robot.hear(/@(\S+) no (juega|va)$/, service.removeAnotherUser);
+
+  robot.router.get('/', (req, res) => {
+    res.send('OK');
+  });
 };
