@@ -20,6 +20,6 @@ module.exports = function main(robot) {
   });
 
   setInterval(function() {
-    const callback = robot.http('http://fulbot-dcl.herokuapp.com').get();
-  }, 300000);
+    robot.http('http://fulbot-dcl.herokuapp.com').get();
+  }, 300000); // 5 minutes
 };
