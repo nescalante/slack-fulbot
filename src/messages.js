@@ -63,7 +63,7 @@ function addUser(users, userId, exists, limit) {
 }
 
 function removeUser(users, userId) {
-  return `removido <@${userId}>`;
+  return `removid☀️ <@${userId}>`;
 }
 
 function listUsers(users) {
