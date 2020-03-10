@@ -22,7 +22,7 @@ function getUsersWithLimit(users, limit) {
     } else if (usersToComplete > 0) {
       message += `Faltan ${usersToComplete}`;
     } else {
-      message += '!Completamos! 🙌';
+      message += '¡Completamos! 🙌';
     }
 
     if (users.length > limit) {
