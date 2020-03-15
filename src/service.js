@@ -80,7 +80,7 @@ module.exports = function commands(robot) {
   async function addUser(res) {
     const { room } = res.message;
 
-    const user = { userId: res.message.user };
+    const user = { userId: res.message.user.id };
 
     await doAddUser({ user, room });
   }
@@ -133,7 +133,7 @@ module.exports = function commands(robot) {
   async function removeUser(res) {
     const { room } = res.message;
 
-    const user = { userId: res.message.user };
+    const user = { userId: res.message.user.id };
 
     await doRemoveUser({ user, room });
   }
