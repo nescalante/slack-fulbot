@@ -18,8 +18,4 @@ module.exports = function main(robot) {
   robot.router.get('/', (req, res) => {
     res.send('OK');
   });
-
-  setInterval(function() {
-    robot.http('http://fulbot-dcl.herokuapp.com').get();
-  }, 300000); // 5 minutes
 };
