@@ -43,7 +43,7 @@ function addUser(users, user, exists, limit) {
     let replyMessage;
 
     if (users.length > limit) {
-      replyMessage = `anotad☀️ de suplente ${formmated}`;
+      replyMessage = `anotad☀️ de suplente ${formated}`;
     } else {
       replyMessage = `anotad☀️ ${formatted}`;
     }
