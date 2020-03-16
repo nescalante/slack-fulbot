@@ -1,7 +1,7 @@
 const repository = require('./repository');
 const messages = require('./messages');
 
-const limit = 10;
+const limit = 12;
 
 module.exports = function commands(robot) {
   return {
