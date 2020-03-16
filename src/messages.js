@@ -22,7 +22,7 @@ function getUsersWithLimit(users, limit) {
     } else if (usersToComplete > 0) {
       message += `Faltan ${usersToComplete}`;
     } else {
-      message += '!Completamos! 🙌';
+      message += '¡Completamos! 🙌';
     }
 
     if (users.length > limit) {
@@ -36,14 +36,16 @@ function getUsersWithLimit(users, limit) {
   return 'No hay jugadores anotad☀️s';
 }
 
-function addUser(users, userId, exists, limit) {
+function addUser(users, user, exists, limit) {
+  const formatted = formatUser(user);
+
   if (!exists) {
     let replyMessage;
 
     if (users.length > limit) {
-      replyMessage = `anotad☀️ de suplente <@${userId}>`;
+      replyMessage = `anotad☀️ de suplente ${formatted}`;
     } else {
-      replyMessage = `anotad☀️ <@${userId}>`;
+      replyMessage = `anotad☀️ ${formatted}`;
     }
 
     if (users.length < limit) {
@@ -59,15 +61,17 @@ function addUser(users, userId, exists, limit) {
     return getUsersWithLimit(users, limit);
   }
 
-  return `ya estabas anotad☀️, <@${userId}>`;
+  return `ya estabas anotad☀️, ${formatted}`;
 }
 
-function removeUser(users, userId) {
-  return `removido <@${userId}>`;
+function removeUser(user) {
+  return `removid☀️ ${formatUser(user)}`;
 }
 
 function listUsers(users) {
-  return users
-    .map(({ userId, userName }) => `- ${userName || `<@${userId}>`}`)
-    .join('\n');
+  return users.map((pair) => `- ${formatUser(pair)}`).join('\n');
+}
+
+function formatUser({ userName, userId }) {
+  return userName || `<@${userId}>`;
 }
