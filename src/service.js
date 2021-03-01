@@ -1,6 +1,8 @@
 const repository = require('./repository');
 const messages = require('./messages');
 
+const LIMIT = 10;
+
 module.exports = function commands(robot) {
   return {
     buildRandomTeams,
@@ -14,7 +16,7 @@ module.exports = function commands(robot) {
   async function getUsers(res) {
     const { room } = res.message;
     const users = await repository.getUsers({ room });
-    const limit = 10;
+    const limit = LIMIT;
     const message = messages.getUsersWithLimit(users, limit);
 
     robot.messageRoom(room, message);
@@ -30,7 +32,7 @@ module.exports = function commands(robot) {
     const users = await repository.getUsers({
       room
     });
-    const limit = 10;
+    const limit = LIMIT;
     const message = messages.addUser(users, userId, exists, limit);
 
     robot.messageRoom(room, message);
@@ -41,7 +43,7 @@ module.exports = function commands(robot) {
     const users = await repository.getUsers({
       room
     });
-    const limit = 10;
+    const limit = LIMIT;
 
     if (users.length) {
       if (users.length >= limit) {
@@ -95,7 +97,7 @@ module.exports = function commands(robot) {
       const users = await repository.getUsers({
         room
       });
-      const limit = 10;
+      const limit = LIMIT;
       const message = messages.addUser(users, userId, exists, limit);
 
       robot.messageRoom(room, message);
@@ -130,7 +132,7 @@ module.exports = function commands(robot) {
     const users = await repository.getUsers({
       room
     });
-    const limit = 10;
+    const limit = LIMIT;
     const message = messages.removeUser(users, userId, limit);
 
     robot.messageRoom(room, message);
@@ -151,7 +153,7 @@ module.exports = function commands(robot) {
       const users = await repository.getUsers({
         room
       });
-      const limit = 10;
+      const limit = LIMIT;
       const message = messages.removeUser(users, userId, limit);
 
       robot.messageRoom(room, message);
