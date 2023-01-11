@@ -13,7 +13,7 @@
   "dependencies": {
     "hubot": "^3.3.2",
     "hubot-slack": "^4.10.0",
-    "knex": "^0.17.6",
+    "knex": "^2.4.0",
     "pg": "^7.18.2"
   },
   "engines": {
