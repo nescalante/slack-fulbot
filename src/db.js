@@ -1,6 +1,6 @@
 const db = require('knex')({
   client: 'pg',
-  connectionString: process.env.DATABASE_URL,
+  connection: `${process.env.DATABASE_URL}?ssl=true`,
   ssl: {
     rejectUnauthorized: false
   }
