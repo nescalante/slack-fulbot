@@ -1,5 +1,8 @@
+const debug = require('debug');
 const repository = require('./repository');
 const messages = require('./messages');
+
+const log = debug('fulbot:service');
 
 const LIMIT = 10;
 
@@ -15,6 +18,8 @@ module.exports = function commands(robot) {
 
   async function getUsers(res) {
     const { room } = res.message;
+
+    log('getting users', room);
     const users = await repository.getUsers({ room });
     const limit = LIMIT;
     const message = messages.getUsersWithLimit(users, limit);
@@ -25,6 +30,9 @@ module.exports = function commands(robot) {
   async function addUser(res) {
     const { room } = res.message;
     const { id: userId } = res.message.user;
+
+    log('adding user: ', userId, room);
+
     const exists = await repository.addUser({
       userId,
       room
@@ -40,6 +48,9 @@ module.exports = function commands(robot) {
 
   async function buildRandomTeams(res) {
     const { room } = res.message;
+
+    log('creating teams: ', room);
+
     const users = await repository.getUsers({
       room
     });
@@ -87,6 +98,8 @@ module.exports = function commands(robot) {
     const { room } = res.message;
     const match = /<@(\S+)> (juega|va)$/.exec(res.message.rawText);
 
+    log('add another user: ', room);
+
     if (match) {
       const userId = match[1];
 
@@ -124,6 +137,8 @@ module.exports = function commands(robot) {
     const { room } = res.message;
     const { id: userId } = res.message.user;
 
+    log('removing user: ', userId, room);
+
     await repository.removeUser({
       userId,
       room
@@ -141,6 +156,8 @@ module.exports = function commands(robot) {
   async function removeAnotherUser(res) {
     const { room } = res.message;
     const match = /<@(\S+)> no (juega|va)$/.exec(res.message.rawText);
+
+    log('removing another user: ', room);
 
     if (match) {
       const userId = match[1];

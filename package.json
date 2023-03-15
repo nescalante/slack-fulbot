@@ -11,10 +11,11 @@
     "lint:fix": "eslint scripts src --fix"
   },
   "dependencies": {
+    "debug": "^4.3.4",
     "hubot": "^3.3.2",
     "hubot-slack": "^4.10.0",
-    "knex": "^0.17.6",
-    "pg": "^7.18.2"
+    "knex": "^2.4.2",
+    "pg": "^8.10.0"
   },
   "engines": {
     "node": "16.x"
