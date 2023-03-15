@@ -18,14 +18,11 @@ async function getUsers({
   try {
     log('getting users for room', room);
 
-    const users = await db
-      .select('*')
-      .from('users')
-      .where({
-        room_id: room,
-        year,
-        week
-      });
+    const res = await db.execute(
+      'SELECT * from users where room_id = $1 AND year::text = $2 AND week::text = $3',
+      [room, year, week]
+    );
+    const users = res.rows;
 
     log(`got ${users.length} users`);
 
@@ -51,37 +48,29 @@ async function addUser({
   week = utils.getWeekNumber()
 }) {
   try {
-    let exists;
-
     if (!userName && !userId) {
       throw new Error('Need to provide one of userId or userName');
     }
 
     log('adding user', userId || userName, room);
 
-    await db.transaction(async (transaction) => {
-      const users = await getUsers({ room, year, week });
-      exists = users.some((user) => user.userId === userId);
+    await db.execute('BEGIN');
 
-      if (!exists) {
-        await db
-          .insert({
-            user_id: userId || userName,
-            room_id: room,
-            year,
-            week,
-            is_external: !!userName
-          })
-          .into('users')
-          .transacting(transaction);
+    const users = await getUsers({ room, year, week });
+    const exists = users.some((user) => user.userId === userId);
 
-        log('user added', userId || userName);
-      } else {
-        log('user already exists');
-      }
+    if (!exists) {
+      await db.execute(
+        'INSERT INTO users(user_id, room_id, year, week, is_external) VALUES($1, $2, $3, $4, $5)',
+        [userId || userName, room, year, week, !!userName]
+      );
 
-      await transaction.commit();
-    });
+      log('user added', userId || userName);
+    } else {
+      log('user already exists');
+    }
+
+    await db.execute('COMMIT');
 
     return exists;
   } catch (error) {
@@ -105,15 +94,10 @@ async function removeUser({
 
     log('removing user', userId || userName, room);
 
-    await db('users')
-      .where({
-        user_id: userId || userName,
-        room_id: room,
-        year,
-        week,
-        is_external: !!userName
-      })
-      .del();
+    await db.execute(
+      'DELETE from users where user_id = $1 AND room_id = $2 AND year::text = $3 AND week::text = $4 AND is_external::text = $5',
+      [userId || userName, room, year, week, !!userName]
+    );
 
     log('user removed', userId || userName, room);
   } catch (error) {

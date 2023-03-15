@@ -1,9 +1,35 @@
-const db = require('knex')({
-  client: 'pg',
-  connection: `${process.env.DATABASE_URL}?ssl=true`,
+const { Pool } = require('pg');
+
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
   ssl: {
     rejectUnauthorized: false
   }
 });
 
-module.exports = db;
+module.exports = {
+  execute
+};
+
+function execute(query, params) {
+  return new Promise(async (resolve, reject) => {
+    let client;
+
+    try {
+      client = await pool.connect();
+    } catch (error) {
+      reject(error);
+      return;
+    }
+
+    try {
+      const res = await client.query(query, params);
+
+      resolve(res);
+      client.release();
+    } catch (error) {
+      reject(error);
+      client.release();
+    }
+  });
+}
