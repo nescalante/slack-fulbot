@@ -1,6 +1,7 @@
 const debug = require('debug');
 const repository = require('./repository');
 const messages = require('./messages');
+const db = require('./db');
 
 const log = debug('fulbot:service');
 
@@ -19,39 +20,48 @@ module.exports = function commands(robot) {
   async function getUsers(res) {
     const { room } = res.message;
 
+    const client = await db.getClient();
+
     log('getting users', room);
-    const users = await repository.getUsers({ room });
+    const users = await repository.getUsers({ client, room });
     const limit = LIMIT;
     const message = messages.getUsersWithLimit(users, limit);
 
     robot.messageRoom(room, message);
+    client.release();
   }
 
   async function addUser(res) {
     const { room } = res.message;
     const { id: userId } = res.message.user;
+    const client = await db.getClient();
 
     log('adding user: ', userId, room);
 
     const exists = await repository.addUser({
+      client,
       userId,
       room
     });
     const users = await repository.getUsers({
+      client,
       room
     });
     const limit = LIMIT;
     const message = messages.addUser(users, userId, exists, limit);
 
     robot.messageRoom(room, message);
+    client.release();
   }
 
   async function buildRandomTeams(res) {
     const { room } = res.message;
+    const client = await db.getClient();
 
     log('creating teams: ', room);
 
     const users = await repository.getUsers({
+      client,
       room
     });
     const limit = LIMIT;
@@ -84,6 +94,8 @@ module.exports = function commands(robot) {
         `No hay suficientes jugadores anotad☀️s. Faltan ${limit - users.length}`
       );
     }
+
+    client.release();
   }
 
   function showTeam(teamName, players) {
@@ -96,6 +108,7 @@ module.exports = function commands(robot) {
 
   async function addAnotherUser(res) {
     const { room } = res.message;
+    const client = await db.getClient();
     const match = /<@(\S+)> (juega|va)$/.exec(res.message.rawText);
 
     log('add another user: ', room);
@@ -104,16 +117,19 @@ module.exports = function commands(robot) {
       const userId = match[1];
 
       const exists = await repository.addUser({
+        client,
         userId,
         room
       });
       const users = await repository.getUsers({
+        client,
         room
       });
       const limit = LIMIT;
       const message = messages.addUser(users, userId, exists, limit);
 
       robot.messageRoom(room, message);
+      client.release();
 
       return;
     }
@@ -124,6 +140,7 @@ module.exports = function commands(robot) {
       const userName = noUserMatch[1];
 
       await repository.addUser({
+        client,
         userName,
         room
       });
@@ -131,30 +148,37 @@ module.exports = function commands(robot) {
       const message = `anotad☀️ ${userName}`;
       robot.messageRoom(room, message);
     }
+
+    client.release();
   }
 
   async function removeUser(res) {
     const { room } = res.message;
     const { id: userId } = res.message.user;
+    const client = await db.getClient();
 
     log('removing user: ', userId, room);
 
     await repository.removeUser({
+      client,
       userId,
       room
     });
 
     const users = await repository.getUsers({
+      client,
       room
     });
     const limit = LIMIT;
     const message = messages.removeUser(users, userId, limit);
 
     robot.messageRoom(room, message);
+    client.release();
   }
 
   async function removeAnotherUser(res) {
     const { room } = res.message;
+    const client = await db.getClient();
     const match = /<@(\S+)> no (juega|va)$/.exec(res.message.rawText);
 
     log('removing another user: ', room);
@@ -163,17 +187,20 @@ module.exports = function commands(robot) {
       const userId = match[1];
 
       await repository.removeUser({
+        client,
         userId,
         room
       });
 
       const users = await repository.getUsers({
+        client,
         room
       });
       const limit = LIMIT;
       const message = messages.removeUser(users, userId, limit);
 
       robot.messageRoom(room, message);
+      client.release();
 
       return;
     }
@@ -184,6 +211,7 @@ module.exports = function commands(robot) {
       const userName = noUserMatch[1];
 
       await repository.removeUser({
+        client,
         room,
         userName
       });
@@ -191,5 +219,7 @@ module.exports = function commands(robot) {
       const message = `removido ${userName}`;
       robot.messageRoom(room, message);
     }
+
+    client.release();
   }
 };

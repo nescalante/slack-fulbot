@@ -11,6 +11,7 @@ module.exports = {
 };
 
 async function getUsers({
+  client,
   room,
   year = utils.getYear(),
   week = utils.getWeekNumber()
@@ -19,6 +20,7 @@ async function getUsers({
     log('getting users for room', room);
 
     const res = await db.execute(
+      client,
       'SELECT * from users where room_id = $1 AND year::text = $2 AND week::text = $3',
       [room, year, week]
     );
@@ -41,6 +43,7 @@ async function getUsers({
 }
 
 async function addUser({
+  client,
   userId,
   userName,
   room,
@@ -54,13 +57,14 @@ async function addUser({
 
     log('adding user', userId || userName, room);
 
-    await db.execute('BEGIN');
+    await db.execute(client, 'BEGIN');
 
-    const users = await getUsers({ room, year, week });
+    const users = await getUsers({ client, room, year, week });
     const exists = users.some((user) => user.userId === userId);
 
     if (!exists) {
       await db.execute(
+        client,
         'INSERT INTO users(user_id, room_id, year, week, is_external) VALUES($1, $2, $3, $4, $5)',
         [userId || userName, room, year, week, !!userName]
       );
@@ -70,7 +74,7 @@ async function addUser({
       log('user already exists');
     }
 
-    await db.execute('COMMIT');
+    await db.execute(client, 'COMMIT');
 
     return exists;
   } catch (error) {
@@ -81,6 +85,7 @@ async function addUser({
 }
 
 async function removeUser({
+  client,
   userId,
   userName,
   room,
@@ -95,6 +100,7 @@ async function removeUser({
     log('removing user', userId || userName, room);
 
     await db.execute(
+      client,
       'DELETE from users where user_id = $1 AND room_id = $2 AND year::text = $3 AND week::text = $4 AND is_external::text = $5',
       [userId || userName, room, year, week, !!userName]
     );
