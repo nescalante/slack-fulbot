@@ -2,7 +2,6 @@ extends: ['airbnb-base', 'plugin:prettier/recommended']
 
 env:
   node: true
-  mocha: true
 
 rules:
   no-use-before-define: off
