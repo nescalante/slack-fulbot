@@ -5,7 +5,7 @@
   "author": "Nicolas Escalante <nlante@gmail.com>",
   "description": "A simple helpful robot for your Company",
   "scripts": {
-    "start": "hubot -a slack --name julito",
+    "start": "DEBUG=fulbot:* hubot -a slack --name julito",
     "test": "npm run lint",
     "lint": "eslint scripts src",
     "lint:fix": "eslint scripts src --fix"

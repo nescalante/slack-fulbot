@@ -1,5 +1,8 @@
+const debug = require('debug');
 const db = require('./db');
 const utils = require('./utils');
+
+const log = debug('fulbot:repository');
 
 module.exports = {
   getUsers,
@@ -12,22 +15,32 @@ async function getUsers({
   year = utils.getYear(),
   week = utils.getWeekNumber()
 }) {
-  const users = await db
-    .select('*')
-    .from('users')
-    .where({
-      room_id: room,
-      year,
-      week
-    });
+  try {
+    log('getting users for room', room);
 
-  return users.map((user) => ({
-    userId: user.is_external ? null : user.user_id,
-    userName: user.is_external ? user.user_id : null,
-    room: user.room_id,
-    week: user.week,
-    year: user.year
-  }));
+    const users = await db
+      .select('*')
+      .from('users')
+      .where({
+        room_id: room,
+        year,
+        week
+      });
+
+    log(`got ${users.length} users`);
+
+    return users.map((user) => ({
+      userId: user.is_external ? null : user.user_id,
+      userName: user.is_external ? user.user_id : null,
+      room: user.room_id,
+      week: user.week,
+      year: user.year
+    }));
+  } catch (error) {
+    log('failed while getting users', error.message);
+
+    throw error;
+  }
 }
 
 async function addUser({
@@ -37,32 +50,45 @@ async function addUser({
   year = utils.getYear(),
   week = utils.getWeekNumber()
 }) {
-  let exists;
+  try {
+    let exists;
 
-  if (!userName && !userId) {
-    throw new Error('Need to provide one of userId or userName');
-  }
-
-  await db.transaction(async (transaction) => {
-    const users = await getUsers({ room, year, week });
-    exists = users.some((user) => user.userId === userId);
-
-    if (!exists) {
-      await db
-        .insert({
-          user_id: userId || userName,
-          room_id: room,
-          year,
-          week,
-          is_external: !!userName
-        })
-        .into('users');
+    if (!userName && !userId) {
+      throw new Error('Need to provide one of userId or userName');
     }
 
-    await transaction.commit();
-  });
+    log('adding user', userId || userName, room);
 
-  return exists;
+    await db.transaction(async (transaction) => {
+      const users = await getUsers({ room, year, week });
+      exists = users.some((user) => user.userId === userId);
+
+      if (!exists) {
+        await db
+          .insert({
+            user_id: userId || userName,
+            room_id: room,
+            year,
+            week,
+            is_external: !!userName
+          })
+          .into('users')
+          .transacting(transaction);
+
+        log('user added', userId || userName);
+      } else {
+        log('user already exists');
+      }
+
+      await transaction.commit();
+    });
+
+    return exists;
+  } catch (error) {
+    log('failed while adding user', error.message);
+
+    throw error;
+  }
 }
 
 async function removeUser({
@@ -72,17 +98,27 @@ async function removeUser({
   year = utils.getYear(),
   week = utils.getWeekNumber()
 }) {
-  if (!userName && !userId) {
-    throw new Error('Need to provide one of userId or userName');
-  }
+  try {
+    if (!userName && !userId) {
+      throw new Error('Need to provide one of userId or userName');
+    }
 
-  await db('users')
-    .where({
-      user_id: userId || userName,
-      room_id: room,
-      year,
-      week,
-      is_external: !!userName
-    })
-    .del();
+    log('removing user', userId || userName, room);
+
+    await db('users')
+      .where({
+        user_id: userId || userName,
+        room_id: room,
+        year,
+        week,
+        is_external: !!userName
+      })
+      .del();
+
+    log('user removed', userId || userName, room);
+  } catch (error) {
+    log('failed while adding user', error.message);
+
+    throw error;
+  }
 }
